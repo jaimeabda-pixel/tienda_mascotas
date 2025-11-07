@@ -1,0 +1,116 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block content %}
+{% load form_tags %}
+
+<div class="login-wrapper">
+    <div class="login-card shadow-lg rounded-5 animate__animated animate__fadeInUp">
+
+        <!-- Logo e info -->
+        <div class="text-center mb-4">
+            <img src="{% static 'img/logo_producto.webp' %}" alt="Logo" class="mb-3" style="width:80px; border-radius:15px;">
+            <h3 class="fw-bold text-white">Bienvenido</h3>
+            <p class="text-light opacity-75">Inicia sesión para continuar</p>
+        </div>
+
+        <!-- Errores -->
+        {% if form.errors %}
+        <div class="alert alert-danger py-2 text-center rounded-3">
+            <i class="fas fa-exclamation-triangle me-1"></i> Usuario o contraseña incorrectos.
+        </div>
+        {% endif %}
+
+        <!-- Formulario -->
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3 position-relative">
+                <span class="input-icon"><i class="fas fa-user"></i></span>
+                {{ form.username|add_class:"form-control rounded-4 ps-5 py-2" }}
+            </div>
+
+            <div class="mb-4 position-relative">
+                <span class="input-icon"><i class="fas fa-lock"></i></span>
+                {{ form.password|add_class:"form-control rounded-4 ps-5 py-2" }}
+            </div>
+
+            <button type="submit" class="btn btn-gradient w-100 py-2 rounded-4 fw-semibold shadow-sm">
+                <i class="fas fa-sign-in-alt me-2"></i> Entrar
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="text-light mb-0">¿No tienes cuenta?
+                <a href="{% url 'registrar_vendedor' %}" class="text-white fw-semibold text-decoration-underline">Regístrate aquí</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Wrapper centrado con flex */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 60px); /* Ajusta si navbar cambia */
+    padding: 1rem;
+}
+
+/* Tarjeta login */
+.login-card {
+    width: 380px;
+    max-width: 95%;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+}
+
+/* Iconos en inputs */
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.7);
+}
+
+/* Inputs */
+.form-control {
+    background-color: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+}
+.form-control::placeholder { color: rgba(255,255,255,0.7); }
+.form-control:focus {
+    background-color: rgba(255,255,255,0.25);
+    box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.2);
+    border-color: #fff;
+    color: white;
+}
+
+/* Botón */
+.btn-gradient {
+    background: linear-gradient(90deg, #4e73df, #1cc88a);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+.btn-gradient:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+/* Enlace registro */
+a.text-white:hover { text-shadow: 0 0 8px rgba(255,255,255,0.7); }
+
+/* Responsivo */
+@media (max-width: 420px) {
+    .login-card { width: 90%; padding: 2rem 1rem; }
+}
+</style>
+
+{% endblock %}

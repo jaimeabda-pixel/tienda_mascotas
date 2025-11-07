@@ -1,0 +1,216 @@
+{% extends 'tienda/base.html' %}
+{% block title %}Ventas{% endblock %}
+
+{% block content %}
+<div class="ventas-container p-4 animate__animated animate__fadeIn">
+
+  <!-- Título y botón registrar -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-light mb-0">
+      <i class="fa-solid fa-cash-register me-2 text-success"></i> Ventas
+    </h2>
+    <a href="{% url 'ventas_create' %}" class="btn btn-gradient shadow-sm px-3 py-2">
+      <i class="fa-solid fa-plus me-1"></i> Registrar Venta
+    </a>
+  </div>
+
+  <!-- Card glass -->
+  <div class="glass-card p-3">
+
+    <div class="table-responsive" style="max-height: 65vh; overflow-y: auto;">
+      <table id="ventasTable" class="ventas-table align-middle table-hover w-100">
+
+        <!-- Encabezado -->
+        <thead class="text-center text-light">
+          <tr>
+            <th>Cliente</th>
+            <th>Vendedor</th>
+            <th>Productos</th>
+            <th>Cantidades</th>
+            <th>Total</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <!-- Cuerpo -->
+        <tbody>
+          {% for venta in ventas %}
+          <tr>
+            <td class="text-center fw-semibold">{{ venta.cliente.nombre }}</td>
+            <td class="text-center fw-semibold">{{ venta.vendedor.username }}</td>
+            
+            <!-- Productos -->
+            <td class="text-center">
+              {% if venta.items.all %}
+                {% for item in venta.items.all %}
+                  <span class="badge bg-gradient-product mb-1 px-2">{{ item.producto.nombre }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            
+            <!-- Cantidades -->
+            <td class="text-center">
+              {% if venta.items.all %}
+                {% for item in venta.items.all %}
+                  <span class="badge bg-gradient-qty mb-1 px-2">{{ item.cantidad }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+
+            <td class="text-center text-success fw-bold">${{ venta.total|floatformat:0 }}</td>
+            <td class="text-center text-info">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+
+            <!-- Botones -->
+            <td class="text-center">
+              <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <a href="{% url 'ventas_detalle' venta.pk %}" class="btn btn-sm btn-accion btn-ver" title="Ver Detalle">
+                  <i class="fa-solid fa-eye"></i>
+                </a>
+                <a href="{% url 'ventas_factura_pdf_rl' venta.pk %}" class="btn btn-sm btn-accion btn-pdf" target="_blank" title="Descargar PDF">
+                  <i class="fa-solid fa-file-pdf"></i>
+                </a>
+                <a href="{% url 'ventas_delete' venta.pk %}" class="btn btn-sm btn-accion btn-eliminar" title="Eliminar Venta" onclick="return confirm('¿Seguro que deseas eliminar esta venta?');">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-light py-4">
+              <i class="fa-solid fa-circle-info me-2"></i>No hay ventas registradas.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DataTables Script -->
+<script>
+$(document).ready(function() {
+  $('#ventasTable').DataTable({
+    language: {
+      search: "🔍 Buscar:",
+      lengthMenu: "Mostrar _MENU_ ventas",
+      info: "Mostrando _START_ a _END_ de _TOTAL_ ventas",
+      paginate: { next: "Siguiente", previous: "Anterior" },
+      zeroRecords: "No se encontraron ventas"
+    },
+    order: [[5, "desc"]],
+    pageLength: 10
+  });
+});
+</script>
+
+<!-- Estilos específicos -->
+<style>
+/* Card glass principal */
+.glass-card {
+  background: rgba(255,255,255,0.08);
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Tabla moderna */
+.ventas-table {
+  background: transparent !important;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  width: 100%;
+}
+.ventas-table th, .ventas-table td {
+  text-align: center;
+  vertical-align: middle;
+  padding: 12px 8px;
+}
+.ventas-table thead th {
+  background: rgba(255,255,255,0.1);
+  border-bottom: 2px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+}
+.ventas-table tbody tr {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+.ventas-table tbody tr:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+/* Badges productos y cantidades */
+.badge {
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 12px;
+}
+.bg-gradient-product {
+  background: linear-gradient(135deg, #4e73df, #1cc88a);
+  color: #fff;
+}
+.bg-gradient-qty {
+  background: linear-gradient(135deg, #1cc88a, #4e73df);
+  color: #fff;
+}
+
+/* Botones de acción modernos */
+.btn-accion {
+  border: none;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+.btn-ver { background: rgba(52,152,219,0.2); color: #3498db; }
+.btn-ver:hover { background: rgba(52,152,219,0.5); color: #fff; transform: scale(1.1);}
+.btn-pdf { background: rgba(231,76,60,0.2); color: #e74c3c; }
+.btn-pdf:hover { background: rgba(231,76,60,0.5); color: #fff; transform: scale(1.1);}
+.btn-eliminar { background: rgba(192,57,43,0.2); color: #c0392b; }
+.btn-eliminar:hover { background: rgba(192,57,43,0.5); color: #fff; transform: scale(1.1);}
+
+/* Scroll estilizado */
+.table-responsive::-webkit-scrollbar {
+  width: 8px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 8px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* DataTables inputs y paginación */
+.dataTables_wrapper input,
+.dataTables_wrapper select {
+  background: rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 5px 8px;
+}
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate { color: #fff !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  background: transparent !important;
+  border: none !important;
+  color: #fff !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: rgba(255,255,255,0.15) !important;
+}
+</style>
+
+{% endblock %}

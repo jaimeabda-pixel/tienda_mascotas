@@ -1,0 +1,19 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %}Eliminar Cliente{% endblock %}
+
+{% block content %}
+<h2 class="text-danger mb-3"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar Eliminación</h2>
+
+<p>¿Estás seguro de que deseas eliminar al cliente <strong>{{ cliente.nombre }}</strong>?</p>
+
+<form method="POST">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">
+    <i class="fa-solid fa-trash"></i> Eliminar
+  </button>
+  <a href="{% url 'clientes_list' %}" class="btn btn-secondary">
+    <i class="fa-solid fa-arrow-left"></i> Cancelar
+  </a>
+</form>
+{% endblock %}

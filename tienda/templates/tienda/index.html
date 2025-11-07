@@ -1,0 +1,187 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+
+<!-- 🔍 Barra de búsqueda -->
+<div class="container mt-4">
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+      <form method="get" action="{% url 'productos_list' %}" class="d-flex shadow-sm rounded-pill overflow-hidden">
+        <input type="text" name="q" class="form-control border-0" placeholder="Buscar producto para tu mascota...">
+        <button type="submit" class="btn btn-primary px-4">
+          <i class="bi bi-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 📊 KPIs Carrusel -->
+<div id="kpiCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+  <div class="carousel-inner">
+
+    <!-- Ventas Hoy -->
+    <div class="carousel-item active">
+      <a href="{% url 'ventas_list' %}" class="text-decoration-none">
+        <div class="card shadow-lg text-white mx-auto kpi-card uniform-card" style="background: linear-gradient(90deg, #4e73df, #1cc88a);">
+          <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <h3 class="text-center"><i class="bi bi-cart-fill"></i> Ventas Hoy</h3>
+            <p class="display-4 fw-bold text-center">{{ ventas_hoy }}</p>
+            <p class="text-center opacity-75">Click para ver todas las ventas</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Stock Bajo -->
+    <div class="carousel-item">
+      <a href="{% url 'productos_list' %}?stock_bajo=1" class="text-decoration-none">
+        <div class="card shadow-lg text-white mx-auto kpi-card uniform-card" style="background: linear-gradient(90deg, #f6c23e, #e74a3b);">
+          <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <h3 class="text-center"><i class="bi bi-exclamation-triangle-fill"></i> Stock Bajo</h3>
+            <p class="display-4 fw-bold text-center">{{ productos_stock_bajo.count }}</p>
+            <p class="text-center opacity-75">Click para ver productos con poco stock</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Producto Más Vendido -->
+    {% if top_producto %}
+    <div class="carousel-item">
+      <a href="{% url 'productos_update' top_producto.id %}" class="text-decoration-none">
+        <div class="card shadow-lg mx-auto kpi-card uniform-card" style="background: linear-gradient(135deg, #36b9cc, #1cc88a);">
+          <div class="row g-0 align-items-center h-100">
+            <div class="col-md-8 p-3 text-white d-flex flex-column justify-content-center">
+              <h5 class="fw-bold"><i class="bi bi-star-fill"></i> Producto Más Vendido</h5>
+              <p class="mb-1 text-truncate">{{ top_producto.nombre }}</p>
+              <span class="badge bg-light text-dark fs-6 fw-bold">{{ total_vendido_top|default:"0" }} uds</span>
+              <p class="opacity-75 mt-1">Click para editar producto</p>
+            </div>
+            <div class="col-md-4 text-center p-2 d-flex align-items-center justify-content-center">
+              {% if top_producto.imagen %}
+                <img src="{{ top_producto.imagen.url }}" alt="{{ top_producto.nombre }}" class="img-fluid top-product-img rounded">
+              {% else %}
+                <img src="{% static 'img/producto_default.jpg' %}" alt="{{ top_producto.nombre }}" class="img-fluid top-product-img rounded">
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% else %}
+    <div class="carousel-item">
+      <div class="card shadow-lg text-white mx-auto kpi-card uniform-card" style="background: linear-gradient(135deg, #6c757d, #343a40);">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+          <h3 class="fw-bold">No hay productos vendidos</h3>
+          <p class="opacity-75">Comienza a registrar ventas para ver resultados</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Total Clientes -->
+    <div class="carousel-item">
+      <a href="{% url 'clientes_list' %}" class="text-decoration-none">
+        <div class="card shadow-lg text-white mx-auto kpi-card uniform-card" style="background: linear-gradient(90deg, #858796, #5a5c69);">
+          <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <h3 class="text-center"><i class="bi bi-people-fill"></i> Total Clientes</h3>
+            <p class="display-4 fw-bold text-center">{{ clientes_total }}</p>
+            <p class="text-center opacity-75">Click para ver clientes</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Controles dentro del carrusel -->
+  <button class="carousel-control-prev position-absolute start-0 top-50 translate-middle-y" type="button" data-bs-target="#kpiCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+  </button>
+  <button class="carousel-control-next position-absolute end-0 top-50 translate-middle-y" type="button" data-bs-target="#kpiCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+  </button>
+</div>
+
+<!-- 🐶 Productos Destacados -->
+<h2 class="text-center mb-4">🐾 Productos Destacados</h2>
+<div class="row justify-content-center g-4">
+  {% for producto in productos %}
+  <div class="col-6 col-md-3 col-lg-2">
+    <div class="glass-card h-100 d-flex flex-column justify-content-between p-3 text-center">
+      
+      {% if producto.imagen %}
+        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-fluid rounded mb-2 product-img">
+      {% else %}
+        <img src="{% static 'img/producto_default.jpg' %}" alt="{{ producto.nombre }}" class="img-fluid rounded mb-2 product-img">
+      {% endif %}
+
+      <h6 class="text-light fw-bold mb-1 text-truncate" title="{{ producto.nombre }}">{{ producto.nombre }}</h6>
+      <p class="text-success fw-bold mb-1">${{ producto.precio|floatformat:0 }}</p>
+      <p class="text-muted small mb-2">Stock: {{ producto.stock }}</p>
+
+      <div class="d-flex justify-content-center gap-2 mt-auto">
+        <a href="{% url 'ventas_create_producto' producto.pk %}" class="btn btn-success btn-sm">
+          <i class="bi bi-cash-stack"></i> Vender
+        </a>
+        <a href="{% url 'productos_update' producto.pk %}" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-pencil-square"></i> Editar
+        </a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <p class="text-center text-light">No hay productos disponibles.</p>
+  {% endfor %}
+</div>
+
+<!-- 🎨 Estilos -->
+<style>
+.kpi-card {
+  border-radius: 20px;
+  transition: transform 0.4s, box-shadow 0.4s;
+  width: 100%;
+  max-width: 900px;
+  height: 180px; /* Altura uniforme */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.top-product-img {
+  max-height: 120px;
+  object-fit: contain;
+  width: auto;
+}
+
+/* Productos Destacados */
+.product-img {
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Glass card hover */
+.glass-card {
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+}
+
+/* Text truncate for long product names */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>
+
+{% endblock %}

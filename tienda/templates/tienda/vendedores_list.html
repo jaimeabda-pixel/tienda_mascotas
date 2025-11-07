@@ -1,0 +1,13 @@
+{% extends "tienda/base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Lista de Vendedores</h1>
+<ul>
+  {% for vendedor in vendedores %}
+    <li>{{ vendedor.nombre }}</li>
+  {% empty %}
+    <li>No hay vendedores registrados.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

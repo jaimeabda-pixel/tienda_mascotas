@@ -1,0 +1,37 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %}Registrar Vendedor{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-lg p-4 rounded-4 mx-auto" style="max-width: 600px;">
+    <h2 class="text-center mb-4">Registrar Vendedor</h2>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="text-center mt-3">
+        <button type="submit" class="btn btn-primary btn-lg">
+          <i class="bi bi-check-lg"></i> Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .card {
+    border-radius: 20px;
+    background: linear-gradient(135deg, #4e73df, #1cc88a);
+    color: white;
+  }
+  input, select, textarea {
+    border-radius: 10px;
+    padding: 10px;
+  }
+  button.btn-primary {
+    border-radius: 20px;
+    background-color: #1cc88a;
+    border: none;
+  }
+</style>
+{% endblock %}

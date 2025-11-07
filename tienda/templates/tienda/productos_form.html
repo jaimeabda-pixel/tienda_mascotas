@@ -1,0 +1,81 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Formulario de Producto{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-lg border-0 rounded-4 bg-dark text-light p-4">
+    <h2 class="mb-4 text-center">{{ form.instance.pk|yesno:"Editar Producto,Crear Producto" }}</h2>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">{{ form.nombre.label }}</label>
+          {{ form.nombre|add_class:"form-control form-control-sm" }}
+          {% for error in form.nombre.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">{{ form.codigo_barras.label }}</label>
+          {{ form.codigo_barras|add_class:"form-control form-control-sm" }}
+          {% for error in form.codigo_barras.errors %}
+              <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+      </div>
+
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">{{ form.precio.label }}</label>
+          {{ form.precio|add_class:"form-control form-control-sm" }}
+          {% for error in form.precio.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mb-3 mt-3">
+        <label class="form-label fw-bold">{{ form.descripcion.label }}</label>
+        {{ form.descripcion|add_class:"form-control form-control-sm" }}
+        {% for error in form.descripcion.errors %}
+          <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">{{ form.stock.label }}</label>
+          {{ form.stock|add_class:"form-control form-control-sm" }}
+          {% for error in form.stock.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">{{ form.imagen.label }}</label>
+          {{ form.imagen|add_class:"form-control form-control-sm" }}
+          {% for error in form.imagen.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if form.instance.imagen %}
+        <div class="text-center mt-3 mb-3">
+          <p class="mb-1">Imagen actual:</p>
+          <img src="{{ form.instance.imagen.url }}" alt="Imagen del producto" class="img-thumbnail" width="150">
+        </div>
+      {% endif %}
+
+      <div class="d-flex justify-content-center gap-2 mt-4">
+        <button type="submit" class="btn btn-gradient">Guardar</button>
+        <a href="{% url 'productos_list' %}" class="btn btn-outline-light">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

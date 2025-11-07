@@ -1,0 +1,121 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block content %}
+{% load form_tags %}
+
+<div class="register-wrapper">
+    <div class="register-card shadow-lg rounded-5 animate__animated animate__fadeInUp">
+
+        <!-- Logo e info -->
+        <div class="text-center mb-4">
+            <img src="{% static 'img/logo_producto.webp' %}" alt="Logo" class="mb-3" style="width:80px; border-radius:15px;">
+            <h3 class="fw-bold text-white">Crear cuenta</h3>
+            <p class="text-light opacity-75">Regístrate para acceder al sistema</p>
+        </div>
+
+        <!-- Errores -->
+        {% if form.errors %}
+        <div class="alert alert-danger py-2 text-center rounded-3">
+            <i class="fas fa-exclamation-triangle me-1"></i> Por favor, revisa los datos ingresados.
+        </div>
+        {% endif %}
+
+        <!-- Formulario -->
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3 position-relative">
+                <span class="input-icon"><i class="fas fa-user"></i></span>
+                {{ form.username|add_class:"form-control rounded-4 ps-5 py-2" }}
+            </div>
+
+            <div class="mb-3 position-relative">
+                <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                {{ form.email|add_class:"form-control rounded-4 ps-5 py-2" }}
+            </div>
+
+            <div class="mb-3 position-relative">
+                <span class="input-icon"><i class="fas fa-lock"></i></span>
+                {{ form.password1|add_class:"form-control rounded-4 ps-5 py-2" }}
+            </div>
+
+            <div class="mb-4 position-relative">
+                <span class="input-icon"><i class="fas fa-lock"></i></span>
+                {{ form.password2|add_class:"form-control rounded-4 ps-5 py-2" }}
+            </div>
+
+            <button type="submit" class="btn btn-gradient w-100 py-2 rounded-4 fw-semibold shadow-sm">
+                <i class="fas fa-user-plus me-2"></i> Registrar
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="text-light mb-0">¿Ya tienes una cuenta?
+                <a href="{% url 'login' %}" class="text-white fw-semibold text-decoration-underline">Inicia sesión</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+.register-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 60px);
+    padding: 1rem;
+    transform: translateY(-20px);
+}
+
+.register-card {
+    width: 380px;
+    max-width: 95%;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.7);
+}
+
+.form-control {
+    background-color: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+}
+.form-control::placeholder { color: rgba(255,255,255,0.7); }
+.form-control:focus {
+    background-color: rgba(255,255,255,0.25);
+    box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.2);
+    border-color: #fff;
+    color: white;
+}
+
+.btn-gradient {
+    background: linear-gradient(90deg, #4e73df, #1cc88a);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+.btn-gradient:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+a.text-white:hover { text-shadow: 0 0 8px rgba(255,255,255,0.7); }
+
+@media (max-width: 420px) {
+    .register-card { width: 90%; padding: 2rem 1rem; }
+}
+</style>
+
+{% endblock %}

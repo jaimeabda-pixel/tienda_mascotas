@@ -1,0 +1,172 @@
+{% extends 'tienda/base.html' %}
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="clientes-container p-4 animate__animated animate__fadeIn">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-light">
+      <i class="fa-solid fa-users me-2"></i> Clientes
+    </h2>
+    <a href="{% url 'clientes_create' %}" class="btn btn-gradient shadow-sm px-3 py-2">
+      <i class="fa-solid fa-plus me-1"></i> Nuevo Cliente
+    </a>
+  </div>
+  
+  <div class="table-responsive">
+    <table id="clientesTable" class="clientes-table align-middle text-light table-hover">
+      <thead class="text-center">
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Teléfono</th>
+          <th>Dirección</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cliente in clientes %}
+        <tr>
+          <td class="text-center fw-semibold">{{ cliente.nombre }}</td>
+          <td class="text-center">{{ cliente.correo }}</td>
+          <td class="text-center">{{ cliente.telefono }}</td>
+          <td class="text-center">{{ cliente.direccion }}</td>
+          <td class="text-center">
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+              <a href="{% url 'clientes_update' cliente.pk %}" class="btn btn-sm btn-accion btn-ver" title="Editar Cliente">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </a>
+              <a href="{% url 'clientes_delete' cliente.pk %}" class="btn btn-sm btn-accion btn-eliminar" title="Eliminar Cliente" onclick="return confirm('¿Seguro que deseas eliminar este cliente?');">
+                <i class="fa-solid fa-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center text-light py-4">
+            <i class="fa-solid fa-circle-info me-2"></i>No hay clientes registrados.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('#clientesTable').DataTable({
+    language: {
+      search: "🔍 Buscar:",
+      lengthMenu: "Mostrar _MENU_ clientes",
+      info: "Mostrando _START_ a _END_ de _TOTAL_ clientes",
+      paginate: { next: "Siguiente", previous: "Anterior" },
+      zeroRecords: "No se encontraron clientes"
+    },
+    order: [[0,"asc"]],
+    pageLength: 10
+  });
+});
+</script>
+
+<style>
+/* Contenedor principal */
+.clientes-container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 1rem;
+}
+
+/* Tabla */
+.clientes-table {
+  background: transparent !important;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  width: 100%;
+}
+
+.clientes-table thead th {
+  background: rgba(255,255,255,0.05);
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  text-align: center;
+  color: #fff;
+}
+
+.clientes-table tbody tr {
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+  transition: background 0.3s;
+}
+
+.clientes-table tbody tr:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* DataTables inputs y paginación */
+.dataTables_wrapper {
+  background: transparent !important;
+  color: #fff !important;
+  padding: 1rem;
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+  background: rgba(255,255,255,0.1) !important;
+  border: none !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  padding: 5px 8px;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+  color: #fff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  background: rgba(255,255,255,0.15) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  color: #fff !important;
+  border-radius: 8px;
+  margin: 0 2px;
+  transition: all 0.3s;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: rgba(255,255,255,0.25) !important;
+  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+/* Botones de acción */
+.btn-accion {
+  border: none;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.btn-ver {
+  background: rgba(52,152,219,0.15);
+  color: #3498db;
+}
+.btn-ver:hover {
+  background: rgba(52,152,219,0.3);
+  color: #fff;
+}
+
+.btn-eliminar {
+  background: rgba(192,57,43,0.15);
+  color: #c0392b;
+}
+.btn-eliminar:hover {
+  background: rgba(192,57,43,0.3);
+  color: #fff;
+}
+</style>
+{% endblock %}

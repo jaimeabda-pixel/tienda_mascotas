@@ -1,0 +1,432 @@
+/* style_pro.css */
+
+/* ========== Variables ========== */
+:root {
+    --primary: #4e73df;
+    --secondary: #1cc88a;
+    --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+/* ========== Body ========== */
+body {
+    font-family: 'Poppins', sans-serif !important;
+    background: radial-gradient(circle at top right, #4e73df 0%, #1cc88a 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    color: #fff;
+}
+
+/* ========== Navbar ========== */
+.navbar {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s;
+}
+
+.navbar-brand span {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: 0.3s;
+}
+
+.nav-link:hover {
+    color: #fff !important;
+    text-shadow: 0 0 5px rgba(255,255,255,0.7);
+}
+
+/* ========== Logo ========== */
+.navbar-brand img {
+    height: 45px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+/* ========== Cards ========== */
+.glass-card {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+/* ========== Botones ========== */
+.btn-gradient, .btn-filter {
+    background: var(--gradient);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover, .btn-filter:hover {
+    opacity: 0.9;
+    transform: scale(1.03);
+}
+
+/* Botones de acción Ventas / Clientes */
+.btn-accion {
+    border: none;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.btn-ver { background-color: #3498db !important; color: #fff !important; }
+.btn-ver:hover { background-color: #2980b9 !important; }
+
+.btn-pdf { background-color: #e74c3c !important; color: #fff !important; }
+.btn-pdf:hover { background-color: #c0392b !important; }
+
+.btn-eliminar { background-color: #c0392b !important; color: #fff !important; }
+.btn-eliminar:hover { background-color: #a93226 !important; }
+
+/* ========== Formularios ========== */
+.form-control-glass, .form-select-glass, .form-control {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 10px;
+    color: #fff;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s;
+}
+
+.form-control-glass:focus, .form-select-glass:focus {
+    background: rgba(255,255,255,0.25);
+    border-color: var(--secondary);
+    box-shadow: 0 0 5px var(--secondary);
+    color: #fff;
+}
+
+/* ========== Tablas ========== */
+.table-glass,
+.ventas-container table,
+.clientes-container table {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #fff !important;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    border-radius: 12px;
+}
+
+.table-glass thead th,
+.ventas-container table thead th,
+.clientes-container table thead th {
+    background: rgba(255,255,255,0.05) !important;
+    border-bottom: 2px solid rgba(255,255,255,0.1) !important;
+}
+
+.table-glass tbody tr,
+.ventas-container table tbody tr,
+.clientes-container table tbody tr {
+    background: rgba(255,255,255,0.02) !important;
+    border-radius: 12px;
+    transition: background 0.3s;
+}
+
+.table-glass tbody tr:hover,
+.ventas-container table tbody tr:hover,
+.clientes-container table tbody tr:hover {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+/* ========== DataTables Estilo Oscuro ========== */
+.dataTables_wrapper {
+    background: transparent !important;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    color: #fff !important;
+    padding: 1rem;
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    background: rgba(255,255,255,0.1) !important;
+    border: 1px solid rgba(255,255,255,0.25) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    padding: 5px 8px;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate { color: #fff !important; }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+    border-radius: 8px;
+    margin: 0 2px;
+    transition: all 0.3s;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: rgba(255,255,255,0.1) !important;
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+/* Inputs y selects dentro de contenedores Ventas / Clientes */
+.ventas-container .dataTables_wrapper input,
+.ventas-container .dataTables_wrapper select,
+.clientes-container .dataTables_wrapper input,
+.clientes-container .dataTables_wrapper select {
+    background: rgba(255,255,255,0.1) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 8px !important;
+}
+
+/* Contenedores Ventas y Clientes */
+.ventas-container, .clientes-container {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 1rem 0;
+}
+
+/* ========== Datepickers / Calendarios ========== */
+.datepicker-wrapper {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 5px;
+    backdrop-filter: blur(8px);
+}
+
+.datepicker-wrapper input {
+    background: transparent;
+    border: none;
+    color: #fff;
+}
+
+/* ========== Dropdowns ========== */
+.dropdown-menu {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(8px);
+}
+
+.dropdown-item {
+    color: #fff;
+}
+
+.dropdown-item:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* ========== Footer ========== */
+footer {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+/* ========== Animaciones ========== */
+main {
+    animation: fadeInUp 0.6s ease-in-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+:root {
+  --primary: #4e73df;
+  --secondary: #1cc88a;
+  --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+body {
+  font-family: 'Poppins', sans-serif !important;
+  background: lch(13.92% 0.99 19.48);
+  min-height: 100vh;
+  color: #fff;
+}
+
+/* Tarjetas y contenedores */
+.card, .form-container, .modal-content, .content-box, .dataTables_wrapper {
+  background: rgba(211, 120, 120, 0.08) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  border-radius: 15px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 25px rgba(0,0,0,0.4);
+  color: #fff !important;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Brillo animado */
+.card::before, .form-container::before, .modal-content::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(120deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 100%);
+  transform: rotate(45deg) translateX(-100%);
+  pointer-events: none;
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% { transform: rotate(45deg) translateX(-100%); }
+  50% { transform: rotate(45deg) translateX(100%); }
+  100% { transform: rotate(45deg) translateX(-100%); }
+}
+
+/* Inputs y selects */
+input.form-control, select.form-control, textarea.form-control,
+.select2-container .select2-selection {
+  background: rgba(255,255,255,0.1) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  border-radius: 10px !important;
+  color: #fff !important;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+input.form-control:focus, select.form-control:focus, textarea.form-control:focus,
+.select2-container--default .select2-selection:focus {
+  border-color: var(--secondary) !important;
+  box-shadow: 0 0 10px rgba(28,200,138,0.4);
+}
+
+/* Botones */
+.btn, .btn-gradient {
+  background: var(--gradient) !important;
+  border: none !important;
+  color: #fff !important;
+  border-radius: 50px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover, .btn-gradient:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255,255,255,0.3);
+}
+
+/* Select2 glass */
+.select2-container .select2-selection {
+  background: rgba(255,255,255,0.15) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  border-radius: 10px !important;
+  color: #fff !important;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+.select2-container .select2-selection__rendered {
+  color: #fff !important;
+  padding-left: 8px !important;
+}
+
+.select2-selection__arrow b {
+  border-color: #fff transparent transparent transparent !important;
+}
+
+.select2-dropdown {
+  background: rgba(40,40,40,0.85) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 12px !important;
+}
+
+.select2-results__option {
+  color: #fff !important;
+  background: transparent !important;
+}
+
+.select2-results__option--highlighted {
+  background: rgba(255,255,255,0.2) !important;
+}
+
+/* Footer */
+footer {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+/* === DataTables Glass === */
+.dataTables_wrapper {
+    background: rgba(255,255,255,0.1) !important;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    color: #fff !important;
+    padding: 1rem;
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    background: rgba(255,255,255,0.15) !important;
+    border: 1px solid rgba(255,255,255,0.25) !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    color: #fff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: rgba(255,255,255,0.15) !important;
+    border: 1px solid rgba(255,255,255,0.25) !important;
+    color: #fff !important;
+    border-radius: 8px;
+    margin: 0 2px;
+    transition: all 0.3s;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: rgba(255,255,255,0.25) !important;
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+#vendedor-info {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    padding: 8px 15px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15); /* vidrio ligero */
+    backdrop-filter: blur(10px); /* efecto vidrio borroso */
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* siempre arriba */
+}
+input.form-control::placeholder {
+    color: white;
+    opacity: 1;
+}
+
+/* Evitar scroll en la página del punto de venta */
+
+

@@ -1,0 +1,40 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.navbar-brand {
+  font-size: 1.4rem;
+}
+
+footer {
+  font-size: 0.9rem;
+}
+
+.card img {
+  height: 200px;
+  object-fit: cover;
+}
+.card-img-top {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    object-fit: cover;
+    height: 200px; /* Ajusta la altura de las imágenes de los productos */
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* Ajuste del card body para centrar contenido */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Botón Ver más más compacto */
+.card-body .btn-sm {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
