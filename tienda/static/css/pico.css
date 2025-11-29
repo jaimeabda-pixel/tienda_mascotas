@@ -6,23 +6,21 @@
     /* --secondary: #1cc88a; Descomenta o ajusta si es necesario */
     --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
     /* Colores base para el efecto vidrio en fondos oscuros */
-    --glass-bg: rgba(255, 255, 255, 0.02); /* Fondo del vidrio más transparente */
+    --glass-bg: rgba(255, 255, 255, 0.06); /* Fondo del vidrio más transparente */
     --glass-border: rgba(255, 255, 255, 0.2); /* Borde blanco sutil */
     --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); /* Sombra más oscura y pronunciada */
-    --blur-amount: 30px; /* Aumenta el desenfoque para un efecto más notorio, como en la imagen */
-    /* Nuevo: Color de fondo general oscuro con un tinte azulado/morado (Ajustado para coincidir con la imagen) */
-    --body-bg-start: #0a111a; /* Tono muy oscuro */
-    --body-bg-end: #0c4d51; /* Tono teal/cerceta oscuro */
-    
+    --blur-amount: 25px; /* Aumenta el desenfoque para un efecto más notorio */
+    /* Nuevo: Color de fondo general oscuro con un ligero tinte azulado/morado */
+    --body-bg-start: #0a0a1a; /* Casi negro con un tinte oscuro */
+    --body-bg-end: #1c1c3a; /* Un poco más claro */
 }
 
 /* ========== Body ========== */
 body {
     font-family: 'Poppins', sans-serif !important;
-    /* Fondo oscuro con gradiente para que el efecto de vidrio destaque (Ajustado a linear-gradient) */
-    background: linear-gradient(135deg, var(--body-bg-start), var(--body-bg-end));
-
-     background-attachment: fixed;
+    /* Fondo oscuro con gradiente para que el efecto de vidrio destaque */
+    background: radial-gradient(circle at top right, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
+    background-attachment: fixed;
     min-height: 100vh;
     margin: 0;
     color: #e0e0e0; /* Color de texto por defecto */
@@ -75,7 +73,7 @@ footer,
 }
 
 .nav-link:hover {
-    color: #0f0f0f !important;
+    color: #fff !important;
     text-shadow: 0 0 5px rgba(255,255,255,0.7);
 }
 
@@ -90,7 +88,7 @@ footer,
 .btn-gradient, .btn-filter {
     background: var(--gradient);
     border: none;
-    color: #141414;
+    color: #fff;
     font-weight: 600;
     border-radius: 50px;
     transition: all 0.3s ease;
@@ -172,8 +170,8 @@ input.form-control, select.form-control, textarea.form-control {
 }
 
 /* Si cualquier contenedor principal tiene overflow que recorta */
-.main-sales-container
- {
+.main-sales-container,
+.container, .content-box {
   overflow: visible !important; /* evita que modals se corten */
 }
 
@@ -189,70 +187,6 @@ input.form-control, select.form-control, textarea.form-control {
 /* Si tus tarjetas usan transform/translate, esto crea un nuevo stacking context que puede afectar al modal.
    Asegúrate de no aplicar transform/opacity/position z-index innecesarios en contenedores padres. */
 .card, .glass-card {
-  position: static;
-}
-
-::placeholder {
-    color: #a0a0a0 !important; /* Color gris suave */
-    opacity: 1; /* Asegura que no sea transparente en Firefox */
-}
-/* ===== Select2 Glass Claro - Proyecto Punto de Venta ===== */
-
-/* Contenedor principal del Select2 */
-.select2-container--default .select2-selection--single {
-    background: rgba(255, 255, 255, 0.3) !important; /* Fondo glass translúcido */
-    border: 1px solid rgba(255,255,255,0.2) !important;
-    border-radius: 10px !important;
-    height: 40px !important;
-    backdrop-filter: blur(8px);
-    color: #000 !important; /* Texto negro */
-}
-
-/* Texto seleccionado dentro del select */
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #000 !important;
-}
-
-/* Placeholder */
-.select2-container--default .select2-selection--single .select2-selection__placeholder {
-    color: rgba(0,0,0,0.6) !important;
-}
-
-/* Flecha del select */
-.select2-container--default .select2-selection--single .select2-selection__arrow b {
-    border-color: #000 transparent transparent transparent !important;
-}
-
-/* ===== Dropdown (lista de opciones) ===== */
-.select2-container--default .select2-dropdown {
-    background-color: rgba(255, 255, 255, 0.25) !important; /* Fondo glass translúcido */
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
-
-/* Opciones de la lista */
-.select2-container--default .select2-results__option {
-    color: #000 !important;
-    background-color: transparent !important;
-}
-
-/* Opción resaltada (hover o teclado) */
-.select2-container--default .select2-results__option--highlighted {
-    color: #fff !important;
-    background-color: #007bff !important;
-}
-
-/* Scroll máximo dentro de la lista */
-.select2-container--default .select2-results__options {
-    max-height: 200px;
-    overflow-y: auto;
-    color: #000 !important;
-
-}
-
-/* Mensaje de sin resultados */
-.select2-container--default .select2-results__message {
-    color: #000 !important;
+  position: relative;
+  z-index: 1; /* mantener bajo para permitir que .modal (z-index alto) lo supere */
 }

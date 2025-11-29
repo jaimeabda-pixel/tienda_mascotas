@@ -1,10 +1,13 @@
 {% extends 'tienda/base.html' %}
 {% load static %}
+
 {% block title %}Productos{% endblock %}
 
 {% block content %}
+
 <div class="container py-4">
 
+  <!-- Título y botón crear -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="text-light"><i class="fa-solid fa-boxes-stacked me-2"></i> Productos</h2>
     <a href="{% url 'productos_create' %}" class="btn btn-success btn-sm">
@@ -12,67 +15,30 @@
     </a>
   </div>
 
-  {% if productos %}
-    <div class="row g-2">
-      {% for producto in productos %}
-        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-          <div class="card h-100 shadow-sm border-0 product-card text-center p-1">
-            {% if producto.imagen %}
-              <img src="{{ producto.imagen.url }}" class="card-img-top producto-img mb-1" alt="{{ producto.nombre }}">
-            {% else %}
-              <img src="{% static 'img/producto_default.jpg' %}" class="card-img-top producto-img mb-1" alt="Imagen no disponible">
-            {% endif %}
+  <!-- Buscador con HTMX -->
+   <input
+    type="text"
+    id="buscar"
+    class="form-control mb-3"
+    placeholder="Buscar producto por nombre o código..."
+    hx-get="{% url 'buscar_productos_htmx' %}"
+    hx-trigger="keyup changed delay:300ms"
+    hx-target="#productos-container"
+    hx-include="[name='buscar']"
+    hx-swap="innerHTML"
+    name="buscar"
+    />
 
-            <div class="card-body p-1">
-              <h6 class="card-title fw-bold mb-1">{{ producto.nombre }}</h6>
-              <p class="text-success fw-bold mb-1">${{ producto.precio }}</p>
-              <p class="text-muted small mb-1">Stock: {{ producto.stock }}</p>
 
-              <div class="d-flex justify-content-center gap-1 flex-wrap">
-                <a href="{% url 'ventas_create_producto' producto.pk %}" class="btn btn-success btn-sm flex-fill">
-                  Vender
-                </a>
-                <a href="{% url 'productos_update' producto.pk %}" class="btn btn-outline-primary btn-sm flex-fill">
-                  Editar
-                </a>
-                <button type="button" class="btn btn-outline-danger btn-sm flex-fill" data-bs-toggle="modal" data-bs-target="#deleteModal{{ producto.pk }}">
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Modal de eliminación -->
-        <div class="modal fade" id="deleteModal{{ producto.pk }}" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Confirmar eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                ¿Eliminar "<strong>{{ producto.nombre }}</strong>"?
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                <a href="{% url 'productos_delete' producto.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      {% endfor %}
-    </div>
-  {% else %}
-    <p class="text-center text-light mt-4">No hay productos disponibles.</p>
-  {% endif %}
+  <!-- Contenedor de productos -->
+  <div id="productos-container" class="row g-3">
+    {% include "tienda/partials/productos_cards.html" with productos=productos %}
+  </div>
 
 </div>
 
 <!-- 🎨 Estilos Personalizados -->
 <style>
-/* Producto Cards */
 .product-card {
   border-radius: 12px;
   background: #ffffff;
@@ -82,10 +48,8 @@
   transform: translateY(-3px);
   box-shadow: 0 6px 15px rgba(0,0,0,0.2);
 }
-
-/* Imagen productos */
 .producto-img {
-  height: 120px; /* más pequeña */
+  height: 120px;
   object-fit: cover;
   border-radius: 10px;
   transition: transform 0.3s;
@@ -93,21 +57,12 @@
 .product-card:hover .producto-img {
   transform: scale(1.03);
 }
-
-/* Botones */
-.btn {
-  border-radius: 8px;
-  font-size: 0.7rem; /* más pequeños */
-  padding: 0.25rem 0.4rem;
-  transition: all 0.2s;
-}
+.btn { border-radius: 8px; font-size: 0.7rem; padding: 0.25rem 0.4rem; transition: all 0.2s; }
 .btn-success { background-color: #1cc88a; border: none; }
 .btn-outline-primary { border-color: #4e73df; color: #4e73df; }
 .btn-outline-primary:hover { background-color: #4e73df; color: #fff; }
 .btn-outline-danger { border-color: #e74a3b; color: #e74a3b; }
 .btn-outline-danger:hover { background-color: #e74a3b; color: #fff; }
-
-/* Responsive */
 @media (max-width: 992px){
   .producto-img { height: 100px; }
   .card-title { font-size: 0.8rem; }
@@ -117,4 +72,5 @@
   .card-title { font-size: 0.75rem; }
 }
 </style>
+
 {% endblock %}

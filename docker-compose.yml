@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: db_tienda
+    restart: always
+    environment:
+      POSTGRES_DB: tienda_mascotas
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:                                 # ← NUEVO (espera que la BD esté viva)
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    container_name: django_tienda
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - media:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy               # ← NUEVO (Django espera a la BD)
+    environment:
+      - DEBUG=True
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_tienda
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: tu@email.com
+      PGADMIN_DEFAULT_PASSWORD: 123456
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  media:

@@ -13,20 +13,30 @@
     <form method="get" class="row g-3 align-items-end">
       <div class="col-md-3">
         <label for="fecha_inicio" class="form-label text-white">Fecha inicio:</label>
-        <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control form-control-glass">
+        <input type="date" id="fecha_inicio" name="fecha_inicio"
+                value="{{ f_fecha_inicio }}"
+                class="form-control form-control-glass">
+
       </div>
       <div class="col-md-3">
         <label for="fecha_fin" class="form-label text-white">Fecha fin:</label>
-        <input type="date" id="fecha_fin" name="fecha_fin" class="form-control form-control-glass">
+        <input type="date" id="fecha_fin" name="fecha_fin"
+                value="{{ f_fecha_fin }}"
+                class="form-control form-control-glass">
+
       </div>
       <div class="col-md-3">
         <label for="vendedor" class="form-label text-white">Vendedor:</label>
         <select id="vendedor" name="vendedor" class="form-select form-select-glass select2">
-          <option value="">Todos</option>
-          {% for user in vendedores %}
-            <option value="{{ user.pk }}">{{ user.username }}</option>
-          {% endfor %}
+            <option value="">Todos</option>
+            {% for user in vendedores %}
+                <option value="{{ user.id }}"
+                    {% if f_vendedor == user.id|stringformat:"s" %}selected{% endif %}>
+                    {{ user.username }}
+                </option>
+            {% endfor %}
         </select>
+
       </div>
       <div class="col-md-3 d-flex gap-2">
         <button type="submit" class="btn btn-gradient flex-grow-1"><i class="fas fa-search me-1"></i> Filtrar</button>

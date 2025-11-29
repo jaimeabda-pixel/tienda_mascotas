@@ -4,7 +4,7 @@
 {% block title %}Punto de Venta PRO{% endblock %}
 
 {% block content %}
-<div class="container-fluid h-100 p-0 d-flex" style="overflow: hidden;">
+<div class="container-fluid p-0 d-flex main-sales-container">
 
   <!-- Formulario de venta -->
   <div class="flex-grow-1 p-3 glass-card rounded-4 shadow-lg text-light d-flex flex-column">
@@ -69,29 +69,31 @@
         </div>
       </div>
 
-      <!-- Cliente y método de pago -->
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label for="cliente" class="form-label"><i class="fas fa-user me-1"></i> Cliente</label>
-          <div class="d-flex gap-2">
-            <select id="cliente" name="cliente" class="form-select select2 flex-grow-1 rounded-3 shadow-sm">
-              {% for c in clientes %}
-                <option value="{{ c.pk }}">{{ c.nombre }}</option>
-              {% endfor %}
-            </select>
-            <button type="button" class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#modalCliente">
-              <i class="fas fa-user-plus"></i>
-            </button>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label for="metodo_pago" class="form-label"><i class="fas fa-credit-card me-1"></i> Método de pago</label>
-          <select id="metodo_pago" name="metodo_pago" class="form-select rounded-3 shadow-sm">
-            <option value="Efectivo">Efectivo</option>
-            <option value="Tarjeta">Tarjeta</option>
-          </select>
-        </div>
-      </div>
+       <!-- Cliente y método de pago -->
+<div class="row g-3 mb-3">
+  <div class="col-md-6">
+    <label for="cliente" class="form-label"><i class="fas fa-user me-1"></i> Cliente</label>
+    <!-- 🔹 Aquí envolvemos el select en un div con overflow visible -->
+    <div style="position: relative; overflow: visible;" class="d-flex gap-2">
+      <select id="cliente" name="cliente" class="form-select select2 flex-grow-1 rounded-3 shadow-sm">
+        {% for c in clientes %}
+          <option value="{{ c.pk }}">{{ c.nombre }}</option>
+        {% endfor %}
+      </select>
+      <button type="button" class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#modalCliente">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <label for="metodo_pago" class="form-label"><i class="fas fa-credit-card me-1"></i> Método de pago</label>
+    <select id="metodo_pago" name="metodo_pago" class="form-select rounded-3 shadow-sm">
+      <option value="Efectivo">Efectivo</option>
+      <option value="Tarjeta">Tarjeta</option>
+    </select>
+  </div>
+</div>
+
 
       <!-- Efectivo y vuelto -->
       <div class="row g-3 mb-3" id="efectivo_div">
@@ -101,7 +103,7 @@
         </div>
         <div class="col-md-6">
           <label class="form-label"><i class="fas fa-dollar-sign me-1"></i> Vuelto</label>
-          <input type="text" id="vuelto" class="form-control rounded-3 bg-light shadow-sm" readonly>
+          <input type="text" id="vuelto" class="form-control rounded-3 bg-light shadow-sm text-dark" readonly>
         </div>
       </div>
 
@@ -169,13 +171,68 @@
     </div>
   </div>
 </div>
+<!-- Modal Pago con Tarjeta -->
+<div class="modal fade" id="modalTarjeta" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card text-light text-center p-4" style="border-radius: 20px;">
+      
+      <h3 class="mb-3">
+        <i class="fas fa-credit-card me-2"></i> Pago con Tarjeta
+      </h3>
+
+      <div id="posAnimacion">
+        <div class="spinner-border text-info" style="width: 4rem; height: 4rem;"></div>
+        <p class="mt-3 fs-5">Deslice, inserte o acerque la tarjeta…</p>
+      </div>
+
+      <div id="posAprobado" style="display:none;">
+        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+        <p class="fs-4 mt-3">Pago aprobado</p>
+      </div>
+
+      <div id="posRechazado" style="display:none;">
+        <i class="fas fa-times-circle text-danger" style="font-size: 5rem;"></i>
+        <p class="fs-4 mt-3">Pago rechazado</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<style>
+.pos-machine {
+  width: 140px;
+  height: 220px;
+  background: linear-gradient(180deg, #444, #111);
+  border-radius: 20px;
+  position: relative;
+  box-shadow: 0 0 25px #00ffee44;
+  animation: brillo 2s infinite ease-in-out;
+}
+@keyframes brillo {
+  0% { box-shadow: 0 0 10px #00ffee55; }
+  50% { box-shadow: 0 0 30px #00ffeed0; }
+  100% { box-shadow: 0 0 10px #00ffee55; }
+}
+</style>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
 jQuery(document).ready(function($){
-    $('.select2').select2({ width: '100%' });
+     $('#cliente').on('select2:open', function() {
+    $('.main-sales-container').css('overflow', 'visible');
+    }).on('select2:close', function() {
+        $('.main-sales-container').css('overflow', 'hidden'); // o lo que tenías antes
+    });
+
+
+    $('#producto').select2({
+        width: '100%',
+        dropdownParent: $('body')
+    });
+
 
     let carrito = [];
     const $producto = $('#producto');
@@ -285,20 +342,118 @@ jQuery(document).ready(function($){
         $('#carrito_data').val(JSON.stringify(carrito));
     });
 
-    {% if producto_preseleccionado %}
-        const preProd=$('#producto').find(':selected');
-        if(preProd.length){
-            const id=preProd.val();
-            const nombre=preProd.text().split(' - $')[0];
-            const precio=parseFloat(preProd.data('precio'));
-            carrito.push({id,nombre,precio,cantidad:1});
-            actualizarCarrito();
-        }
-    {% endif %}
+     {% if producto_preseleccionado %}
+    $('#producto').val('{{ producto_preseleccionado.pk }}').trigger('change');
 
-    $('#registrarVentaBtn').on('click', function() {
-        $('#venta-form').submit();
+    const nombre = $('#producto option:selected').text().split(' - $')[0];
+    const precio = parseFloat($('#producto option:selected').data('precio'));
+    carrito.push({
+        id: '{{ producto_preseleccionado.pk }}',
+        nombre: nombre,
+        precio: precio,
+        cantidad: 1
+    });
+
+    actualizarCarrito();
+    {% endif %}
+    // Cuando cambia el método de pago
+$('#metodo_pago').on('change', function() {
+    if ($(this).val() === "Tarjeta") {
+        // Mostrar modal premium
+        $('#modalTarjeta').modal('show');
+
+        // Espera 3 segundos y simula aprobación
+        setTimeout(() => {
+            $('#posAnimacion').hide();
+            $('#posAprobado').show();
+
+            // Cerrar modal después de 2 segundos
+            setTimeout(() => {
+                $('#modalTarjeta').modal('hide');
+                $('#posAnimacion').show();
+                $('#posAprobado').hide();
+            }, 2000);
+
+        }, 3000);
+    }
+});
+
+
+     $('#registrarVentaBtn').on('click', function () {
+
+    const metodo = $('#metodo_pago').val();
+
+    // 🟦 Si es TARJETA → abrir modal POS
+    if (metodo === "Tarjeta") {
+
+        const modal = new bootstrap.Modal(document.getElementById('modalTarjetaPOS'));
+        modal.show();
+
+        // Restaurar animación por si se usó antes
+        $('#pos-animando').removeClass('d-none');
+        $('#pos-exito').addClass('d-none');
+
+        // 🔄 Simular lectura de tarjeta
+        setTimeout(() => {
+
+            $('#pos-animando').addClass('d-none');
+            $('#pos-exito').removeClass('d-none');
+
+            // 🟩 Sonido beep opcional
+            // const beep = new Audio("{% static 'audio/beep.mp3' %}");
+            // beep.play();
+
+            // 🕒 Procesar venta
+            setTimeout(() => {
+                $('#venta-form').submit();
+            }, 1500);
+
+        }, 2000);
+
+        return; // NO enviar el formulario aún
+    }
+
+    // 🟩 Si es efectivo → submit normal
+    $('#venta-form').submit();
+});
+
+});
+$('#guardarCliente').on('click', function(){
+    const nombre = $('#nombre_cliente').val().trim();
+    const correo = $('#correo_cliente').val().trim();
+    const telefono = $('#telefono_cliente').val().trim();
+
+    if(!nombre){
+        alert("El nombre es obligatorio");
+        return;
+    }
+
+    $.ajax({
+        url: "{% url 'cliente_add_ajax' %}", // tu función Django
+        type: "POST",
+        data: {
+            nombre: nombre,
+            correo: correo,
+            telefono: telefono,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response){
+            // Agrega el nuevo cliente al select y selecciónalo
+            const $select = $('#cliente');
+            $select.append(`<option value="${response.id}" selected>${response.nombre}</option>`);
+            $select.val(response.id).trigger('change');
+
+            // Cierra el modal y limpia inputs
+            $('#modalCliente').modal('hide');
+            $('#form-nuevo-cliente')[0].reset();
+        },
+        error: function(xhr){
+            const err = xhr.responseJSON?.error || 'Error al crear el cliente';
+            alert(err);
+        }
     });
 });
+
+
 </script>
 {% endblock %}

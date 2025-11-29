@@ -9,7 +9,7 @@ from decimal import Decimal, InvalidOperation
 from io import BytesIO
 import json
 from django.db.models import Sum
-
+from django.contrib.auth import get_user_model
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer
@@ -18,6 +18,8 @@ from reportlab.lib.units import mm
 
 from .models import Producto, Cliente, Venta, VentaItem, Vendedor
 from .forms import ProductoForm, ClienteForm, VentaForm, VendedorForm, VendedorRegistroForm
+from django.db.models import Q
+from django.template.loader import render_to_string
 
 # ---------------------------
 # VISTA PRINCIPAL / DASHBOARD
@@ -258,7 +260,7 @@ def ventas_factura_pdf_rl(request, pk):
     elementos = []
 
     # Encabezado
-    elementos.append(Paragraph("<b>TIENDA DE MASCOTAS</b>", styles["Title"]))
+    elementos.append(Paragraph("<b>TIENDA PARA MASCOTAS</b>", styles["Title"]))
     elementos.append(Spacer(1, 12))
     elementos.append(Paragraph(f"<b>Factura N°:</b> {venta.factura_num}", styles["Normal"]))
     elementos.append(Paragraph(f"<b>Fecha:</b> {venta.fecha.strftime('%d/%m/%Y %H:%M')}", styles["Normal"]))
@@ -294,7 +296,7 @@ def ventas_factura_pdf_rl(request, pk):
         elementos.append(Paragraph(f"<b>Vuelto:</b> ${venta.vuelto:.2f}", styles["Normal"]))
 
     elementos.append(Spacer(1, 20))
-    elementos.append(Paragraph("Gracias por su compra 💙", styles["Normal"]))
+    elementos.append(Paragraph("¡Gracias por su compra!", styles["Normal"]))
 
     doc.build(elementos)
     pdf = buffer.getvalue()
@@ -325,10 +327,46 @@ def acerca(request):
 # ---------------------------
 # Historial y detalle de ventas
 # ---------------------------
+User = get_user_model()
+
 @login_required
 def ventas_historial(request):
-    ventas = Venta.objects.select_related('cliente').prefetch_related('items__producto').all().order_by('-fecha')
-    return render(request, 'tienda/ventas_historial.html', {'ventas': ventas})
+    # Obtener filtros desde el GET
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    vendedor_id = request.GET.get('vendedor')
+
+    # Base de datos inicial
+    ventas = Venta.objects.all().order_by('-fecha')
+
+    # Filtrar por fecha inicial
+    if fecha_inicio:
+        ventas = ventas.filter(fecha__date__gte=fecha_inicio)
+
+    # Filtrar por fecha final
+    if fecha_fin:
+        ventas = ventas.filter(fecha__date__lte=fecha_fin)
+
+    # Filtrar por vendedor
+    if vendedor_id:
+        ventas = ventas.filter(vendedor_id=vendedor_id)
+
+    # Total ventas
+    total_ventas = sum(v.total() for v in ventas)
+
+    # Pasamos todos los vendedores al template
+    vendedores = User.objects.all()
+
+    return render(request, 'tienda/ventas_historial.html', {
+        'ventas': ventas,
+        'vendedores': vendedores,
+        'total_ventas': total_ventas,
+
+        # ❗ Datos para mantener filtros en pantalla
+        'f_fecha_inicio': fecha_inicio,
+        'f_fecha_fin': fecha_fin,
+        'f_vendedor': vendedor_id,
+    })
 
 @login_required
 def ventas_detalle(request, pk):
@@ -475,3 +513,16 @@ def ventas_pos_producto_codigo(request):
         except Producto.DoesNotExist:
             return JsonResponse({'ok': False, 'error': 'Producto no encontrado'})
     return JsonResponse({'ok': False, 'error': 'Método no permitido'})
+
+
+
+
+@login_required
+def buscar_productos_htmx(request):
+    query = request.GET.get('buscar', '')  # ❗ debe ser 'buscar', igual que en el input
+    if query:
+        productos = Producto.objects.filter(Q(nombre__icontains=query) | Q(codigo_barras__icontains=query))
+    else:
+        productos = Producto.objects.all()
+
+    return render(request, 'tienda/partials/productos_cards.html', {'productos': productos})

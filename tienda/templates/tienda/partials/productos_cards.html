@@ -1,0 +1,50 @@
+{% load static %}
+{% for producto in productos %}
+<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+  <div class="card h-100 shadow-sm border-0 product-card text-center p-1">
+    {% if producto.imagen %}
+      <img src="{{ producto.imagen.url }}" class="card-img-top producto-img mb-1" alt="{{ producto.nombre }}">
+    {% else %}
+      <img src="{% static 'img/producto_default.jpg' %}" class="card-img-top producto-img mb-1" alt="Imagen no disponible">
+    {% endif %}
+
+    <div class="card-body p-1">
+      <h6 class="card-title fw-bold mb-1">{{ producto.nombre }}</h6>
+      <p class="text-success fw-bold mb-1">${{ producto.precio }}</p>
+      <p class="text-muted small mb-1">Stock: {{ producto.stock }}</p>
+
+      <div class="d-flex justify-content-center gap-1 flex-wrap">
+        <a href="{% url 'ventas_create_producto' producto.pk %}" class="btn btn-success btn-sm flex-fill">Vender</a>
+        <a href="{% url 'productos_update' producto.pk %}" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
+        <button type="button" class="btn btn-outline-danger btn-sm flex-fill" data-bs-toggle="modal" data-bs-target="#deleteModal{{ producto.pk }}">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="deleteModal{{ producto.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ producto.pk }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel{{ producto.pk }}">Eliminar Producto</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar "{{ producto.nombre }}"?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a href="{% url 'productos_delete' producto.pk %}" class="btn btn-danger">Eliminar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% empty %}
+<div class="col-12">
+  <p class="text-center text-light mt-4">No hay productos disponibles.</p>
+</div>
+{% endfor %}
