@@ -1,31 +1,62 @@
 {% load static %}
 {% for producto in productos %}
-<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-  <div class="card h-100 shadow-sm border-0 product-card text-center p-1">
+<div class="product-card animate__animated animate__fadeInUp">
+
+  <!-- Imagen del producto -->
+  <div class="producto-image">
     {% if producto.imagen %}
-      <img src="{{ producto.imagen.url }}" class="card-img-top producto-img mb-1" alt="{{ producto.nombre }}">
+    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="producto-img">
     {% else %}
-      <img src="{% static 'img/producto_default.jpg' %}" class="card-img-top producto-img mb-1" alt="Imagen no disponible">
+    <img src="{% static 'img/producto_default.jpg' %}" alt="{{ producto.nombre }}" class="producto-img">
     {% endif %}
-
-    <div class="card-body p-1">
-      <h6 class="card-title fw-bold mb-1">{{ producto.nombre }}</h6>
-      <p class="text-success fw-bold mb-1">${{ producto.precio }}</p>
-      <p class="text-muted small mb-1">Stock: {{ producto.stock }}</p>
-
-      <div class="d-flex justify-content-center gap-1 flex-wrap">
-        <a href="{% url 'ventas_create_producto' producto.pk %}" class="btn btn-success btn-sm flex-fill">Vender</a>
-        <a href="{% url 'productos_update' producto.pk %}" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
-        <button type="button" class="btn btn-outline-danger btn-sm flex-fill" data-bs-toggle="modal" data-bs-target="#deleteModal{{ producto.pk }}">
-          Eliminar
-        </button>
+    <div class="producto-overlay">
+      <div class="overlay-content">
+        <a href="{% url 'ventas_create_producto' producto.pk %}" class="btn btn-success btn-sm">
+          <i class="fa-solid fa-cart-plus me-2"></i> Vender
+        </a>
       </div>
+    </div>
+  </div>
+
+  <!-- Info del producto -->
+  <div class="producto-body">
+    <h5 class="card-title" title="{{ producto.nombre }}">
+      {{ producto.nombre|truncatewords:4 }}
+    </h5>
+
+    <div class="producto-price">
+      ${{ producto.precio|floatformat:0 }}
+    </div>
+
+    <div class="producto-stock mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <small class="text-secondary" style="font-size: 0.8rem;">Stock disponible</small>
+        <small class="fw-bold text-light">{{ producto.stock }} un.</small>
+      </div>
+      <div class="stock-bar">
+        {% if producto.stock >= 100 %}
+        <div class="stock-filled" style="width: 100%"></div>
+        {% else %}
+        <div class="stock-filled" style="width: {{ producto.stock }}%"></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-auto">
+      <a href="{% url 'productos_update' producto.pk %}" class="btn btn-outline-light btn-sm flex-fill btn-action">
+        <i class="fa-solid fa-pen me-1"></i> Editar
+      </a>
+      <button type="button" class="btn btn-outline-danger btn-sm flex-fill btn-action" data-bs-toggle="modal"
+        data-bs-target="#deleteModal{{ producto.pk }}">
+        <i class="fa-solid fa-trash me-1"></i> Eliminar
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Modal Eliminar -->
-<div class="modal fade" id="deleteModal{{ producto.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ producto.pk }}" aria-hidden="true">
+<div class="modal fade" id="deleteModal{{ producto.pk }}" tabindex="-1"
+  aria-labelledby="deleteModalLabel{{ producto.pk }}" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content bg-dark text-light">
       <div class="modal-header">

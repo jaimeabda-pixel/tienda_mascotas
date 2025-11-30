@@ -3,66 +3,200 @@
 {% block title %}{{ accion }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <div class="card shadow-lg rounded-4 bg-white p-4">
-    <h2 class="text-primary mb-4 text-center">
-      <i class="fa-solid fa-user-plus me-2"></i> {{ accion }}
-    </h2>
 
-    <form method="POST">
-      {% csrf_token %}
+<div class="container-fluid px-0">
 
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label fw-bold">{{ form.nombre.label }}</label>
-          {{ form.nombre }}
-          {% for error in form.nombre.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label fw-bold">{{ form.apellido.label }}</label>
-          {{ form.apellido }}
-          {% for error in form.apellido.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="row g-3 mt-2">
-        <div class="col-md-6">
-          <label class="form-label fw-bold">{{ form.correo.label }}</label>
-          {{ form.correo }}
-          {% for error in form.correo.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label fw-bold">{{ form.telefono.label }}</label>
-          {{ form.telefono }}
-          {% for error in form.telefono.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
-        </div>
-      </div>
-
-      {% if form.instance.pk %}
-        <div class="mt-3">
-          <p class="text-muted small">Editando cliente existente</p>
-        </div>
-      {% endif %}
-
-      <div class="mt-4 d-flex justify-content-between">
-        <button type="submit" class="btn btn-primary">
-          <i class="fa-solid fa-save me-1"></i> Guardar
-        </button>
-        <a href="{% url 'clientes_list' %}" class="btn btn-secondary">
-          <i class="fa-solid fa-arrow-left me-1"></i> Volver
+  <!-- Header Section - Liquid Glass -->
+  <div class="liquid-glass-header glass-header-compact mb-4">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="h4 mb-0 text-light fw-bold">
+          <i class="fas fa-user text-primary me-2"></i> {{ accion }}
+        </h1>
+        <a href="{% url 'clientes_list' %}" class="btn btn-outline-light btn-sm">
+          <i class="fas fa-arrow-left me-1"></i> Volver
         </a>
       </div>
-    </form>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+      
+      <!-- Card principal -->
+      <div class="liquid-glass-card rounded-4 p-5 shadow-lg animate__animated animate__fadeInUp">
+        
+        <!-- Encabezado -->
+        <div class="text-center mb-5">
+          <div class="mb-3">
+            <i class="fa-solid fa-user-plus text-gradient" style="font-size: 2.5rem;"></i>
+          </div>
+          <h2 class="text-light mb-2">{{ accion }}</h2>
+          <p class="text-secondary small">
+            {% if form.instance.pk %}
+              Actualiza la información del cliente
+            {% else %}
+              Completa los datos para registrar un nuevo cliente
+            {% endif %}
+          </p>
+        </div>
+
+        <form method="POST" id="clienteForm">
+          {% csrf_token %}
+
+          <!-- Nombre -->
+          <div class="mb-4">
+            <label class="form-label text-light fw-600 d-flex align-items-center">
+              <i class="fa-solid fa-user me-2 text-gradient"></i>
+              {{ form.nombre.label }}
+            </label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-transparent border-light border-2">
+                <i class="fa-solid fa-signature text-secondary"></i>
+              </span>
+              {{ form.nombre }}
+            </div>
+            {% for error in form.nombre.errors %}
+              <div class="text-danger small mt-2">
+                <i class="fa-solid fa-exclamation-circle me-1"></i>{{ error }}
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Correo -->
+          <div class="mb-4">
+            <label class="form-label text-light fw-600 d-flex align-items-center">
+              <i class="fa-solid fa-envelope me-2 text-gradient"></i>
+              {{ form.correo.label }}
+            </label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-transparent border-light border-2">
+                <i class="fa-solid fa-at text-secondary"></i>
+              </span>
+              {{ form.correo }}
+            </div>
+            {% for error in form.correo.errors %}
+              <div class="text-danger small mt-2">
+                <i class="fa-solid fa-exclamation-circle me-1"></i>{{ error }}
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Teléfono -->
+          <div class="mb-4">
+            <label class="form-label text-light fw-600 d-flex align-items-center">
+              <i class="fa-solid fa-phone me-2 text-gradient"></i>
+              {{ form.telefono.label }}
+            </label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-transparent border-light border-2">
+                <i class="fa-solid fa-mobile text-secondary"></i>
+              </span>
+              {{ form.telefono }}
+            </div>
+            {% for error in form.telefono.errors %}
+              <div class="text-danger small mt-2">
+                <i class="fa-solid fa-exclamation-circle me-1"></i>{{ error }}
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Dirección -->
+          <div class="mb-4">
+            <label class="form-label text-light fw-600 d-flex align-items-center">
+              <i class="fa-solid fa-location-dot me-2 text-gradient"></i>
+              Dirección
+            </label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-transparent border-light border-2">
+                <i class="fa-solid fa-map text-secondary"></i>
+              </span>
+              <input type="text" name="direccion" placeholder="Calle, Número, Ciudad..." 
+                     class="form-control liquid-glass-input bg-dark text-light border-light border-2" 
+                     value="{{ form.instance.direccion|default:'' }}">
+            </div>
+          </div>
+
+          <!-- Info de edición -->
+          {% if form.instance.pk %}
+            <div class="alert alert-info alert-dismissible fade show bg-info bg-opacity-10 border-info" role="alert">
+              <i class="fa-solid fa-circle-info me-2"></i>
+              <small>Editando cliente existente. Los cambios se guardarán inmediatamente.</small>
+            </div>
+          {% endif %}
+
+          <!-- Botones de acción -->
+          <div class="d-flex gap-3 mt-5 pt-4 border-top border-secondary border-opacity-25">
+            <button type="submit" class="btn liquid-glass-btn flex-grow-1 py-3 fw-600">
+              <i class="fa-solid fa-check me-2"></i> 
+              {% if form.instance.pk %}Actualizar{% else %}Guardar{% endif %}
+            </button>
+            <a href="{% url 'clientes_list' %}" class="btn btn-outline-light py-3 fw-600">
+              <i class="fa-solid fa-arrow-left me-2"></i> Volver
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
+
+<style>
+/* Inputs personalizados */
+#clienteForm input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  padding: 0.75rem 1rem !important;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+#clienteForm input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+#clienteForm input:focus {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: #667eea !important;
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* Etiquetas */
+.form-label {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.fw-600 {
+  font-weight: 600;
+}
+
+/* Text gradient */
+.text-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Alert personalizado */
+.alert-info {
+  border-radius: 12px;
+}
+
+/* Animación */
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 2rem 1.5rem !important;
+  }
+
+  #clienteForm input {
+    font-size: 16px !important; /* Evita zoom en mobile */
+  }
+}
+</style>
 {% endblock %}

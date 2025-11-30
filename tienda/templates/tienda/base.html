@@ -10,7 +10,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style_pro.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_pro.css' %}?v=2.2">
 
     <!-- FontAwesome e íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -23,75 +23,158 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Animaciones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     {% block extra_head %}{% endblock %}
 </head>
+
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg glass-nav fixed-top py-3">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="{% url 'inicio' %}">
-            <img src="{% static 'img/logo_producto.webp' %}" alt="Logo Tienda">
-            <span>Tienda para Mascotas</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="menu">
-            <ul class="navbar-nav ms-auto align-items-center">
-                {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'inicio' %}"><i class="bi bi-house-door"></i> Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'productos_list' %}"><i class="bi bi-box"></i> Productos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'clientes_list' %}"><i class="bi bi-people"></i> Clientes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'ventas_create' %}"><i class="bi bi-cart-check"></i> Ventas</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle user-dropdown" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle fs-5"></i> {{ user.username }}
+    <!-- Navbar Premium -->
+    <nav class="navbar navbar-expand-lg fixed-top py-3 transition-all" id="mainNav"
+        style="background: rgba(255,255,255,0.01); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="{% url 'inicio' %}">
+                <div class="logo-container p-2 rounded-circle glass-effect d-flex align-items-center justify-content-center"
+                    style="width: 45px; height: 45px;">
+                    <img src="{% static 'img/logo_producto.webp' %}" alt="Logo" class="img-fluid"
+                        style="transform: scale(1.2);">
+                </div>
+                <span class="fw-bold text-white tracking-wide"
+                    style="font-size: 1.25rem; letter-spacing: 0.5px;">Tienda para <span
+                        class="text-primary">Mascotas</span></span>
+            </a>
+
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse"
+                data-bs-target="#menu">
+                <i class="fas fa-bars fs-4"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="navbar-nav ms-auto align-items-center gap-1 gap-lg-3">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link px-3 py-2 rounded-pill text-white-50 hover-white transition-all d-flex align-items-center gap-2"
+                            href="{% url 'inicio' %}">
+                            <i class="fas fa-home"></i> <span>Inicio</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 py-2 rounded-pill text-white-50 hover-white transition-all d-flex align-items-center gap-2"
+                            href="{% url 'productos_list' %}">
+                            <i class="fas fa-box-open"></i> <span>Productos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 py-2 rounded-pill text-white-50 hover-white transition-all d-flex align-items-center gap-2"
+                            href="{% url 'clientes_list' %}">
+                            <i class="fas fa-users"></i> <span>Clientes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-4 py-2 rounded-pill bg-primary bg-opacity-10 text-primary hover-bg-primary hover-text-white transition-all fw-bold d-flex align-items-center gap-2"
+                            href="{% url 'ventas_create' %}">
+                            <i class="fas fa-cash-register"></i> <span>POS</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown ms-lg-3">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 p-1 pe-3 rounded-pill glass-effect border-0"
+                            href="#" role="button" data-bs-toggle="dropdown">
+                            <div class="bg-gradient-primary rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm"
+                                style="width: 32px; height: 32px; background: linear-gradient(135deg, #4e73df, #224abe);">
+                                {{ user.username|first|upper }}
+                            </div>
+                            <span class="small fw-bold text-white">{{ user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end glass-effect border-0 shadow-lg mt-2 p-2 rounded-4">
                             <li>
-                                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
-                                    <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                                <a class="dropdown-item rounded-3 text-danger d-flex align-items-center gap-2 px-3 py-2 hover-bg-danger-light"
+                                    href="{% url 'logout' %}">
+                                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
                                 </a>
                             </li>
                         </ul>
                     </li>
-                {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Iniciar sesión</a></li>
-                {% endif %}
-            </ul>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary px-4 py-2 rounded-pill text-white shadow-sm"
+                            href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt me-2"></i> Iniciar sesión
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<!-- Contenido -->
-<main class="container py-5 mt-5">
-    {% block content %}{% endblock %}
-</main>
+    <!-- Contenido -->
+    <main class="{% block container_class %}container py-5 mt-5{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
 
-<!-- Footer -->
-<footer class="text-center py-3 mt-5 glass-footer">
-    <p class="mb-0">&copy; 2025 Tienda de Mascotas 🐾 | Hecho por Jaime 💙</p>
-</footer>
+    <!-- Footer -->
+    <footer class="text-center py-3 mt-5 glass-footer">
+        <p class="mb-0">&copy; 2025 Tienda de Mascotas 🐾 | Hecho por Jaime 💙</p>
+    </footer>
 
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'lib/select2/select2.min.js' %}"></script>
+    <style>
+        /* Navbar Styles */
+        .hover-white:hover {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.1);
+        }
 
-<script>
-  $(document).ready(function() {
-    if ($('.select2').length) {
-      $('.select2').select2({ width: '100%' });
-    }
-  });
-</script>
-<script src="https://unpkg.com/htmx.org@1.9.12"></script>
+        .hover-bg-primary:hover {
+            background: var(--primary) !important;
+            color: #fff !important;
+        }
 
+        .hover-bg-danger-light:hover {
+            background: rgba(220, 53, 69, 0.1);
+        }
 
-{% block extra_js %}{% endblock %}
+        .tracking-wide {
+            letter-spacing: 0.05em;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        /* Active Link Indicator */
+        .nav-link.active {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'lib/select2/select2.min.js' %}"></script>
+
+    <script>
+        $(document).ready(function () {
+            if ($('.select2').length) {
+                $('.select2').select2({ width: '100%' });
+            }
+
+            // Active Link Highlighting
+            const currentPath = window.location.pathname;
+            $('.nav-link').each(function () {
+                if ($(this).attr('href') === currentPath) {
+                    $(this).addClass('active');
+                }
+            });
+        });
+    </script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+    {% block extra_js %}{% endblock %}
 
 </body>
+
 </html>

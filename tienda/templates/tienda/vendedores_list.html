@@ -2,12 +2,190 @@
 {% load static %}
 
 {% block content %}
-<h1>Lista de Vendedores</h1>
-<ul>
-  {% for vendedor in vendedores %}
-    <li>{{ vendedor.nombre }}</li>
-  {% empty %}
-    <li>No hay vendedores registrados.</li>
-  {% endfor %}
-</ul>
+
+<div class="container-fluid px-0">
+
+  <!-- Header Section - Liquid Glass -->
+  <div class="liquid-glass-header mb-4">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-user-tie fa-2x text-primary me-3"></i>
+          <div>
+            <h1 class="h3 mb-0 text-light">Vendedores</h1>
+            <small class="text-light opacity-75">Gestión de personal</small>
+          </div>
+        </div>
+        <a href="{% url 'vendedores_create' %}" class="btn liquid-glass-btn">
+          <i class="fas fa-plus me-2"></i> Nuevo Vendedor
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+
+    <!-- Vendedores List -->
+    <div class="glass-card p-4">
+      {% if vendedores %}
+        <div class="row g-3">
+          {% for vendedor in vendedores %}
+            <div class="col-md-6 col-lg-4">
+              <div class="vendedor-card glass-card p-3 h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-user-circle fa-2xl text-primary me-3"></i>
+                  <div>
+                    <h5 class="mb-0 text-light">{{ vendedor.nombre }}</h5>
+                    <small class="text-light opacity-75">{{ vendedor.email }}</small>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-light opacity-75">
+                    Registrado: {{ vendedor.fecha_registro|date:"d/m/Y" }}
+                  </small>
+                  <div class="btn-group" role="group">
+                    <a href="{% url 'vendedores_update' vendedor.pk %}" class="btn btn-outline-primary btn-sm">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'vendedores_delete' vendedor.pk %}" class="btn btn-outline-danger btn-sm">
+                      <i class="fas fa-trash"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12 text-center py-5">
+              <i class="fas fa-users fa-3x text-muted mb-3"></i>
+              <h5 class="text-light mb-2">No hay vendedores registrados</h5>
+              <p class="text-muted mb-4">Comienza agregando tu primer vendedor</p>
+              <a href="{% url 'vendedores_create' %}" class="btn liquid-glass-btn">
+                <i class="fas fa-plus me-2"></i> Crear Primer Vendedor
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-5">
+          <i class="fas fa-users fa-3x text-muted mb-3"></i>
+          <h5 class="text-light mb-2">No hay vendedores registrados</h5>
+          <p class="text-muted mb-4">Comienza agregando tu primer vendedor</p>
+          <a href="{% url 'vendedores_create' %}" class="btn liquid-glass-btn">
+            <i class="fas fa-plus me-2"></i> Crear Primer Vendedor
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<style>
+/* Glass Header */
+.glass-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Glass Cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(25px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+/* Vendedor Cards */
+.vendedor-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.vendedor-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Buttons */
+.btn {
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: white;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+  color: white;
+}
+
+.btn-outline-primary {
+  border: 2px solid #667eea;
+  color: #667eea;
+  background: transparent;
+}
+
+.btn-outline-primary:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-outline-danger {
+  border: 2px solid #e74c3c;
+  color: #e74c3c;
+  background: transparent;
+}
+
+.btn-outline-danger:hover {
+  background: #e74c3c;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .glass-header {
+    padding: 1.5rem 0;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .glass-header {
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+  }
+  .glass-header h1 {
+    font-size: 1.5rem;
+  }
+  .vendedor-card {
+    margin-bottom: 1rem;
+  }
+}
+</style>
 {% endblock %}

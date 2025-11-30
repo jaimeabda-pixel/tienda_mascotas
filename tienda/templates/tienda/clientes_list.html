@@ -1,172 +1,170 @@
 {% extends 'tienda/base.html' %}
+{% load static %}
+
 {% block title %}Clientes{% endblock %}
 
 {% block content %}
-<div class="clientes-container p-4 animate__animated animate__fadeIn">
+<div class="container-fluid animate__animated animate__fadeIn">
 
+  <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-light">
-      <i class="fa-solid fa-users me-2"></i> Clientes
-    </h2>
-    <a href="{% url 'clientes_create' %}" class="btn btn-gradient shadow-sm px-3 py-2">
-      <i class="fa-solid fa-plus me-1"></i> Nuevo Cliente
+    <h3 class="text-white mb-0">
+      <i class="fas fa-users me-2 text-primary"></i> Clientes
+    </h3>
+    <a href="{% url 'clientes_create' %}" class="btn btn-primary shadow-sm">
+      <i class="fas fa-user-plus me-2"></i> Nuevo
     </a>
   </div>
-  
-  <div class="table-responsive">
-    <table id="clientesTable" class="clientes-table align-middle text-light table-hover">
-      <thead class="text-center">
-        <tr>
-          <th>Nombre</th>
-          <th>Correo</th>
-          <th>Teléfono</th>
-          <th>Dirección</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for cliente in clientes %}
-        <tr>
-          <td class="text-center fw-semibold">{{ cliente.nombre }}</td>
-          <td class="text-center">{{ cliente.correo }}</td>
-          <td class="text-center">{{ cliente.telefono }}</td>
-          <td class="text-center">{{ cliente.direccion }}</td>
-          <td class="text-center">
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
-              <a href="{% url 'clientes_update' cliente.pk %}" class="btn btn-sm btn-accion btn-ver" title="Editar Cliente">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </a>
-              <a href="{% url 'clientes_delete' cliente.pk %}" class="btn btn-sm btn-accion btn-eliminar" title="Eliminar Cliente" onclick="return confirm('¿Seguro que deseas eliminar este cliente?');">
-                <i class="fa-solid fa-trash"></i>
-              </a>
-            </div>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="5" class="text-center text-light py-4">
-            <i class="fa-solid fa-circle-info me-2"></i>No hay clientes registrados.
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+
+  <!-- Buscador -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="glass-effect p-3 rounded-4">
+        <div class="input-group input-group-lg">
+          <span class="input-group-text bg-transparent border-0 text-light">
+            <i class="fas fa-search"></i>
+          </span>
+          <input type="text" id="filtroClientes" class="form-control bg-transparent border-0 text-white"
+            placeholder="Buscar por nombre, correo o teléfono..." style="box-shadow: none;">
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Tabla de Clientes -->
+  <div class="glass-effect rounded-4 overflow-hidden shadow-lg">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 text-white">
+        <thead class="bg-white bg-opacity-10 text-uppercase small fw-bold"
+          style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <tr>
+            <th class="ps-4 py-3">Nombre</th>
+            <th class="py-3">Contacto</th>
+            <th class="py-3">Dirección</th>
+            <th class="text-end pe-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaClientesBody">
+          {% for cliente in clientes %}
+          <tr class="cliente-row" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td class="ps-4 py-3">
+              <div class="d-flex align-items-center">
+                <div
+                  class="avatar-circle me-3 bg-primary bg-opacity-25 text-primary rounded-circle d-flex align-items-center justify-content-center"
+                  style="width: 45px; height: 45px; font-weight: bold; font-size: 1.2rem;">
+                  {{ cliente.nombre|first|upper }}
+                </div>
+                <div>
+                  <h6 class="mb-0 fw-bold text-white">{{ cliente.nombre }}</h6>
+                  <small class="text-white-50">ID: #{{ cliente.pk }}</small>
+                </div>
+              </div>
+            </td>
+            <td class="py-3">
+              <div class="d-flex flex-column gap-1">
+                {% if cliente.correo %}
+                <div class="d-flex align-items-center text-light">
+                  <i class="fas fa-envelope me-2 text-info opacity-75" style="width: 16px;"></i>
+                  <a href="mailto:{{ cliente.correo }}" class="text-decoration-none text-light hover-text-primary">{{
+                    cliente.correo }}</a>
+                </div>
+                {% endif %}
+                {% if cliente.telefono %}
+                <div class="d-flex align-items-center text-light">
+                  <i class="fas fa-phone me-2 text-success opacity-75" style="width: 16px;"></i>
+                  <a href="tel:{{ cliente.telefono }}" class="text-decoration-none text-light hover-text-primary">{{
+                    cliente.telefono }}</a>
+                </div>
+                {% endif %}
+                {% if not cliente.correo and not cliente.telefono %}
+                <span class="text-white-50 fst-italic">Sin datos de contacto</span>
+                {% endif %}
+              </div>
+            </td>
+            <td class="py-3">
+              {% if cliente.direccion %}
+              <div class="d-flex align-items-start text-light" style="max-width: 300px;">
+                <i class="fas fa-map-marker-alt me-2 text-danger opacity-75 mt-1" style="width: 16px;"></i>
+                <span>{{ cliente.direccion }}</span>
+              </div>
+              {% else %}
+              <span class="text-white-50 fst-italic">No registrada</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-4 py-3">
+              <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'clientes_update' cliente.pk %}" class="btn btn-sm btn-outline-light rounded-pill px-3"
+                  title="Editar">
+                  <i class="fas fa-pen me-1"></i> Editar
+                </a>
+                <a href="{% url 'clientes_delete' cliente.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                  title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar a {{ cliente.nombre }}?');">
+                  <i class="fas fa-trash-alt"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center py-5">
+              <div class="d-flex flex-column align-items-center opacity-50">
+                <i class="fas fa-users-slash fa-4x mb-3"></i>
+                <h5>No hay clientes registrados</h5>
+                <p class="mb-0">Comienza agregando uno nuevo</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
-<script>
-$(document).ready(function() {
-  $('#clientesTable').DataTable({
-    language: {
-      search: "🔍 Buscar:",
-      lengthMenu: "Mostrar _MENU_ clientes",
-      info: "Mostrando _START_ a _END_ de _TOTAL_ clientes",
-      paginate: { next: "Siguiente", previous: "Anterior" },
-      zeroRecords: "No se encontraron clientes"
-    },
-    order: [[0,"asc"]],
-    pageLength: 10
-  });
-});
-</script>
-
 <style>
-/* Contenedor principal */
-.clientes-container {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 1rem;
-}
+  /* Estilos específicos para esta página, complementando style_pro.css */
+  .avatar-circle {
+    transition: transform 0.3s ease;
+  }
 
-/* Tabla */
-.clientes-table {
-  background: transparent !important;
-  border-collapse: separate;
-  border-spacing: 0 8px;
-  width: 100%;
-}
+  .cliente-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
 
-.clientes-table thead th {
-  background: rgba(255,255,255,0.05);
-  border-bottom: 2px solid rgba(255,255,255,0.1);
-  text-align: center;
-  color: #fff;
-}
+  .cliente-row:hover .avatar-circle {
+    transform: scale(1.1);
+  }
 
-.clientes-table tbody tr {
-  background: rgba(255,255,255,0.02);
-  border-radius: 12px;
-  transition: background 0.3s;
-}
+  .hover-text-primary:hover {
+    color: var(--primary-light) !important;
+  }
 
-.clientes-table tbody tr:hover {
-  background: rgba(255,255,255,0.08);
-}
-
-/* DataTables inputs y paginación */
-.dataTables_wrapper {
-  background: transparent !important;
-  color: #fff !important;
-  padding: 1rem;
-}
-
-.dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select {
-  background: rgba(255,255,255,0.1) !important;
-  border: none !important;
-  color: #fff !important;
-  border-radius: 8px !important;
-  padding: 5px 8px;
-}
-
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate {
-  color: #fff !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-  background: rgba(255,255,255,0.15) !important;
-  border: 1px solid rgba(255,255,255,0.25) !important;
-  color: #fff !important;
-  border-radius: 8px;
-  margin: 0 2px;
-  transition: all 0.3s;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background: rgba(255,255,255,0.25) !important;
-  box-shadow: 0 0 10px rgba(255,255,255,0.2);
-}
-
-/* Botones de acción */
-.btn-accion {
-  border: none;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: 0.2s;
-}
-
-.btn-ver {
-  background: rgba(52,152,219,0.15);
-  color: #3498db;
-}
-.btn-ver:hover {
-  background: rgba(52,152,219,0.3);
-  color: #fff;
-}
-
-.btn-eliminar {
-  background: rgba(192,57,43,0.15);
-  color: #c0392b;
-}
-.btn-eliminar:hover {
-  background: rgba(192,57,43,0.3);
-  color: #fff;
-}
+  /* Placeholder color fix for glass input */
+  #filtroClientes::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const filtroInput = document.getElementById('filtroClientes');
+    const filas = document.querySelectorAll('.cliente-row');
+
+    if (filtroInput) {
+      filtroInput.addEventListener('keyup', function () {
+        const filtro = this.value.toLowerCase();
+
+        filas.forEach(fila => {
+          const texto = fila.textContent.toLowerCase();
+          if (texto.includes(filtro)) {
+            fila.style.display = '';
+          } else {
+            fila.style.display = 'none';
+          }
+        });
+      });
+    }
+  });
+</script>
 {% endblock %}

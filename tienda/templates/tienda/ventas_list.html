@@ -2,215 +2,463 @@
 {% block title %}Ventas{% endblock %}
 
 {% block content %}
-<div class="ventas-container p-4 animate__animated animate__fadeIn">
+<div class="ventas-container p-4">
 
-  <!-- Título y botón registrar -->
+  <!-- Encabezado con título y botón -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-light mb-0">
-      <i class="fa-solid fa-cash-register me-2 text-success"></i> Ventas
-    </h2>
-    <a href="{% url 'ventas_create' %}" class="btn btn-gradient shadow-sm px-3 py-2">
-      <i class="fa-solid fa-plus me-1"></i> Registrar Venta
+    <div>
+      <h2 class="text-light mb-0">
+        <i class="fa-solid fa-receipt me-2" style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i> 
+        Historial de Ventas
+      </h2>
+      <p class="text-secondary mt-1">Gestiona y supervisa todas tus transacciones</p>
+    </div>
+    <a href="{% url 'ventas_create' %}" class="btn btn-gradient shadow-lg px-4 py-2" style="background: linear-gradient(135deg, #667eea, #764ba2); border: none; font-weight: 600;">
+      <i class="fa-solid fa-plus me-2"></i> Nueva Venta
     </a>
   </div>
 
-  <!-- Card glass -->
-  <div class="glass-card p-3">
-
-    <div class="table-responsive" style="max-height: 65vh; overflow-y: auto;">
-      <table id="ventasTable" class="ventas-table align-middle table-hover w-100">
-
-        <!-- Encabezado -->
-        <thead class="text-center text-light">
-          <tr>
-            <th>Cliente</th>
-            <th>Vendedor</th>
-            <th>Productos</th>
-            <th>Cantidades</th>
-            <th>Total</th>
-            <th>Fecha</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <!-- Cuerpo -->
-        <tbody>
-          {% for venta in ventas %}
-          <tr>
-            <td class="text-center fw-semibold">{{ venta.cliente.nombre }}</td>
-            <td class="text-center fw-semibold">{{ venta.vendedor.username }}</td>
-            
-            <!-- Productos -->
-            <td class="text-center">
-              {% if venta.items.all %}
-                {% for item in venta.items.all %}
-                  <span class="badge bg-gradient-product mb-1 px-2">{{ item.producto.nombre }}</span>
-                {% endfor %}
-              {% else %}
-                <span class="text-muted">—</span>
-              {% endif %}
-            </td>
-            
-            <!-- Cantidades -->
-            <td class="text-center">
-              {% if venta.items.all %}
-                {% for item in venta.items.all %}
-                  <span class="badge bg-gradient-qty mb-1 px-2">{{ item.cantidad }}</span>
-                {% endfor %}
-              {% else %}
-                <span class="text-muted">—</span>
-              {% endif %}
-            </td>
-
-            <td class="text-center text-success fw-bold">${{ venta.total|floatformat:0 }}</td>
-            <td class="text-center text-info">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
-
-            <!-- Botones -->
-            <td class="text-center">
-              <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <a href="{% url 'ventas_detalle' venta.pk %}" class="btn btn-sm btn-accion btn-ver" title="Ver Detalle">
-                  <i class="fa-solid fa-eye"></i>
-                </a>
-                <a href="{% url 'ventas_factura_pdf_rl' venta.pk %}" class="btn btn-sm btn-accion btn-pdf" target="_blank" title="Descargar PDF">
-                  <i class="fa-solid fa-file-pdf"></i>
-                </a>
-                <a href="{% url 'ventas_delete' venta.pk %}" class="btn btn-sm btn-accion btn-eliminar" title="Eliminar Venta" onclick="return confirm('¿Seguro que deseas eliminar esta venta?');">
-                  <i class="fa-solid fa-trash"></i>
-                </a>
-              </div>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="7" class="text-center text-light py-4">
-              <i class="fa-solid fa-circle-info me-2"></i>No hay ventas registradas.
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <!-- Buscador en tiempo real -->
+  <div class="search-section mb-4">
+    <div class="input-group input-group-lg">
+      <span class="input-group-text" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </span>
+      <input type="text" id="filtroVentas" class="form-control" placeholder="Buscar por cliente, vendedor o número de venta..." 
+             style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 12px 18px; font-weight: 500;">
     </div>
   </div>
+
+  <!-- Grid de ventas o tabla según resolución -->
+  <div id="ventasGrid" class="ventas-grid">
+    {% for venta in ventas %}
+    <div class="venta-card glass-card animate__animated animate__fadeInUp" data-cliente="{{ venta.cliente.nombre|lower }}" data-vendedor="{{ venta.vendedor.username|lower }}" data-venta="{{ venta.pk }}">
+      
+      <!-- Header de la tarjeta -->
+      <div class="venta-header">
+        <div class="venta-info">
+          <h5 class="venta-cliente">
+            <i class="fa-solid fa-user-circle me-2"></i>
+            {{ venta.cliente.nombre }}
+          </h5>
+          <p class="text-secondary mb-0">
+            <i class="fa-solid fa-calendar-days me-1"></i>
+            {{ venta.fecha|date:"d/m/Y" }} - {{ venta.fecha|time:"H:i" }}
+          </p>
+        </div>
+        <div class="venta-total">
+          <span class="total-amount">${{ venta.total|floatformat:0 }}</span>
+        </div>
+      </div>
+
+      <!-- Detalles de la venta -->
+      <div class="venta-details mt-3">
+        <div class="detail-item mb-2">
+          <label class="text-secondary small">Vendedor</label>
+          <p class="text-light fw-600">{{ venta.vendedor.username }}</p>
+        </div>
+
+        {% if venta.items.all %}
+        <div class="detail-item mb-2">
+          <label class="text-secondary small">Productos ({{ venta.items.all.count }})</label>
+          <div class="productos-list">
+            {% for item in venta.items.all %}
+            <span class="badge-producto">
+              <i class="fa-solid fa-box me-1"></i>
+              {{ item.producto.nombre }} <span class="badge-qty">x{{ item.cantidad }}</span>
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Método de pago -->
+        <div class="detail-item mb-3">
+          <label class="text-secondary small">Método de Pago</label>
+          <span class="badge-pago {% if venta.metodo_pago == 'Efectivo' %}efectivo{% else %}tarjeta{% endif %}">
+            <i class="fa-solid {% if venta.metodo_pago == 'Efectivo' %}fa-money-bill-1{% else %}fa-credit-card{% endif %} me-1"></i>
+            {{ venta.metodo_pago }}
+          </span>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="venta-actions">
+          <a href="{% url 'ventas_detalle' venta.pk %}" class="btn btn-action btn-ver" title="Ver Detalle">
+            <i class="fa-solid fa-eye"></i> Ver
+          </a>
+          <a href="{% url 'ventas_factura_pdf_rl' venta.pk %}" class="btn btn-action btn-pdf" target="_blank" title="Descargar PDF">
+            <i class="fa-solid fa-file-pdf"></i> PDF
+          </a>
+          <a href="{% url 'ventas_delete' venta.pk %}" class="btn btn-action btn-eliminar" title="Eliminar" onclick="return confirm('¿Eliminar esta venta?');">
+            <i class="fa-solid fa-trash"></i> Eliminar
+          </a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+      <i class="fa-solid fa-inbox"></i>
+      <h4 class="text-light mt-3">Sin ventas registradas</h4>
+      <p class="text-secondary">Comienza a registrar ventas para verlas aquí</p>
+      <a href="{% url 'ventas_create' %}" class="btn btn-gradient mt-3">
+        <i class="fa-solid fa-plus me-1"></i> Registrar Primera Venta
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Mensaje cuando no hay resultados en búsqueda -->
+  <div id="sinResultados" class="empty-state" style="display: none;">
+    <i class="fa-solid fa-search"></i>
+    <h4 class="text-light mt-3">Sin resultados</h4>
+    <p class="text-secondary">No se encontraron ventas que coincidan con tu búsqueda</p>
+  </div>
+
 </div>
 
-<!-- DataTables Script -->
-<script>
-$(document).ready(function() {
-  $('#ventasTable').DataTable({
-    language: {
-      search: "🔍 Buscar:",
-      lengthMenu: "Mostrar _MENU_ ventas",
-      info: "Mostrando _START_ a _END_ de _TOTAL_ ventas",
-      paginate: { next: "Siguiente", previous: "Anterior" },
-      zeroRecords: "No se encontraron ventas"
-    },
-    order: [[5, "desc"]],
-    pageLength: 10
-  });
-});
-</script>
-
-<!-- Estilos específicos -->
 <style>
-/* Card glass principal */
-.glass-card {
-  background: rgba(255,255,255,0.08);
+/* === CONTENEDOR PRINCIPAL === */
+.ventas-container {
+  background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+  min-height: 100vh;
   border-radius: 20px;
-  backdrop-filter: blur(15px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-  border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Tabla moderna */
-.ventas-table {
-  background: transparent !important;
-  border-collapse: separate;
-  border-spacing: 0 10px;
-  width: 100%;
+/* === BUSCADOR === */
+.search-section {
+  animation: slideDown 0.5s ease-out;
 }
-.ventas-table th, .ventas-table td {
-  text-align: center;
-  vertical-align: middle;
-  padding: 12px 8px;
+
+.search-section .input-group-text {
+  border-radius: 12px 0 0 12px !important;
+  background: rgba(255,255,255,0.08) !important;
 }
-.ventas-table thead th {
-  background: rgba(255,255,255,0.1);
-  border-bottom: 2px solid rgba(255,255,255,0.15);
-  border-radius: 10px;
+
+.search-section .form-control {
+  border-radius: 0 12px 12px 0 !important;
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  transition: all 0.3s ease;
 }
-.ventas-table tbody tr {
+
+.search-section .form-control:focus {
+  background: rgba(255,255,255,0.12) !important;
+  border-color: rgba(102,126,234,0.5) !important;
+  box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.15) !important;
+}
+
+/* === GRID DE VENTAS === */
+.ventas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* === TARJETA DE VENTA === */
+.venta-card {
   background: rgba(255,255,255,0.05);
-  border-radius: 12px;
-  transition: all 0.3s;
-}
-.ventas-table tbody tr:hover {
-  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Badges productos y cantidades */
-.badge {
+.venta-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.5s;
+}
+
+.venta-card:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(102,126,234,0.3);
+  box-shadow: 0 15px 40px rgba(102,126,234,0.15);
+  transform: translateY(-8px);
+}
+
+.venta-card:hover::before {
+  left: 100%;
+}
+
+/* Header de tarjeta */
+.venta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.venta-cliente {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  margin-bottom: 0.25rem;
+}
+
+.venta-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.total-amount {
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Detalles */
+.venta-details {
+  flex-grow: 1;
+}
+
+.detail-item label {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.detail-item p {
+  margin: 0;
+  color: #fff;
+}
+
+/* Lista de productos */
+.productos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.badge-producto {
+  display: inline-block;
+  background: rgba(102,126,234,0.15);
+  color: rgba(102,126,234,0.9);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
   font-size: 0.85rem;
+  border: 1px solid rgba(102,126,234,0.3);
   font-weight: 500;
-  border-radius: 12px;
-}
-.bg-gradient-product {
-  background: linear-gradient(135deg, #4e73df, #1cc88a);
-  color: #fff;
-}
-.bg-gradient-qty {
-  background: linear-gradient(135deg, #1cc88a, #4e73df);
-  color: #fff;
 }
 
-/* Botones de acción modernos */
-.btn-accion {
+.badge-qty {
+  background: rgba(102,126,234,0.3);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-left: 0.3rem;
+}
+
+/* Badge de pago */
+.badge-pago {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.badge-pago.efectivo {
+  background: rgba(76,175,80,0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76,175,80,0.3);
+}
+
+.badge-pago.tarjeta {
+  background: rgba(33,150,243,0.2);
+  color: #2196f3;
+  border: 1px solid rgba(33,150,243,0.3);
+}
+
+/* Botones de acción */
+.venta-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.btn-action {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
   border: none;
-  width: 38px;
-  height: 38px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  gap: 0.5rem;
   transition: all 0.3s ease;
-}
-.btn-ver { background: rgba(52,152,219,0.2); color: #3498db; }
-.btn-ver:hover { background: rgba(52,152,219,0.5); color: #fff; transform: scale(1.1);}
-.btn-pdf { background: rgba(231,76,60,0.2); color: #e74c3c; }
-.btn-pdf:hover { background: rgba(231,76,60,0.5); color: #fff; transform: scale(1.1);}
-.btn-eliminar { background: rgba(192,57,43,0.2); color: #c0392b; }
-.btn-eliminar:hover { background: rgba(192,57,43,0.5); color: #fff; transform: scale(1.1);}
-
-/* Scroll estilizado */
-.table-responsive::-webkit-scrollbar {
-  width: 8px;
-}
-.table-responsive::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.3);
-  border-radius: 8px;
-}
-.table-responsive::-webkit-scrollbar-track {
-  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-/* DataTables inputs y paginación */
-.dataTables_wrapper input,
-.dataTables_wrapper select {
-  background: rgba(255,255,255,0.1) !important;
-  color: #fff !important;
-  border: none !important;
-  border-radius: 8px !important;
-  padding: 5px 8px;
+.btn-ver {
+  background: rgba(52,152,219,0.15);
+  color: #3498db;
+  border: 1px solid rgba(52,152,219,0.3);
 }
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate { color: #fff !important; }
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-  background: transparent !important;
-  border: none !important;
-  color: #fff !important;
+
+.btn-ver:hover {
+  background: rgba(52,152,219,0.3);
+  color: #fff;
+  transform: scale(1.05);
 }
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background: rgba(255,255,255,0.15) !important;
+
+.btn-pdf {
+  background: rgba(231,76,60,0.15);
+  color: #e74c3c;
+  border: 1px solid rgba(231,76,60,0.3);
+}
+
+.btn-pdf:hover {
+  background: rgba(231,76,60,0.3);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.btn-eliminar {
+  background: rgba(192,57,43,0.15);
+  color: #c0392b;
+  border: 1px solid rgba(192,57,43,0.3);
+}
+
+.btn-eliminar:hover {
+  background: rgba(192,57,43,0.3);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #fff;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 1rem;
+}
+
+.empty-state h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* === ANIMACIONES === */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .ventas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .venta-card {
+    padding: 1.25rem;
+  }
+
+  .total-amount {
+    font-size: 1.5rem;
+  }
+
+  .venta-header {
+    flex-direction: column;
+  }
+
+  .venta-total {
+    margin-top: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .venta-actions {
+    flex-direction: column;
+  }
+
+  .btn-action {
+    width: 100%;
+  }
 }
 </style>
+
+<!-- JavaScript para búsqueda en tiempo real -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const filtro = document.getElementById('filtroVentas');
+  const cards = document.querySelectorAll('.venta-card');
+  const sinResultados = document.getElementById('sinResultados');
+
+  filtro.addEventListener('keyup', function() {
+    const busqueda = this.value.toLowerCase();
+    let contadorVisibles = 0;
+
+    cards.forEach(card => {
+      const cliente = card.getAttribute('data-cliente');
+      const vendedor = card.getAttribute('data-vendedor');
+      const venta = card.getAttribute('data-venta');
+
+      if (cliente.includes(busqueda) || vendedor.includes(busqueda) || venta.includes(busqueda)) {
+        card.style.display = 'block';
+        card.classList.add('animate__animated', 'animate__fadeIn');
+        contadorVisibles++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    if (contadorVisibles === 0 && busqueda.length > 0) {
+      sinResultados.style.display = 'block';
+    } else {
+      sinResultados.style.display = 'none';
+    }
+  });
+});
+</script>
 
 {% endblock %}
