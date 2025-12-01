@@ -8,9 +8,10 @@
 
         <!-- Logo e info -->
         <div class="text-center mb-4">
-            <img src="{% static 'img/logo_producto.webp' %}" alt="Logo" class="mb-3" style="width:80px; border-radius:15px;">
-            <h3 class="fw-bold text-white">Crear cuenta</h3>
-            <p class="text-light opacity-75">Regístrate para acceder al sistema</p>
+            <img src="{% static 'img/logo_producto.webp' %}" alt="Logo" class="mb-3"
+                style="width:80px; border-radius:15px;">
+            <h3 class="fw-bold text-main">Crear cuenta</h3>
+            <p class="text-muted opacity-75">Regístrate para acceder al sistema</p>
         </div>
 
         <!-- Errores -->
@@ -50,72 +51,82 @@
         </form>
 
         <div class="text-center mt-4">
-            <p class="text-light mb-0">¿Ya tienes una cuenta?
-                <a href="{% url 'login' %}" class="text-white fw-semibold text-decoration-underline">Inicia sesión</a>
+            <p class="text-muted mb-0">¿Ya tienes una cuenta?
+                <a href="{% url 'login' %}" class="text-primary fw-semibold text-decoration-underline">Inicia sesión</a>
             </p>
         </div>
     </div>
 </div>
 
 <style>
-.register-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 60px);
-    padding: 1rem;
-    transform: translateY(-20px);
-}
+    .register-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 60px);
+        padding: 1rem;
+        transform: translateY(-20px);
+    }
 
-.register-card {
-    width: 380px;
-    max-width: 95%;
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
-    padding: 2rem;
-    border-radius: 15px;
-    
-}
+    .register-card {
+        width: 380px;
+        max-width: 95%;
+        background: var(--bg-card);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        padding: 2rem;
+        border-radius: 15px;
+    }
 
-.input-icon {
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    transform: translateY(-50%);
-    color: rgba(255,255,255,0.7);
-}
+    .input-icon {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        z-index: 10;
+    }
 
-.form-control {
-    background-color: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-}
-.form-control::placeholder { color: rgba(255,255,255,0.7); }
-.form-control:focus {
-    background-color: rgba(255,255,255,0.25);
-    box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.2);
-    border-color: #fff;
-    color: white;
-}
+    .form-control {
+        background-color: var(--bg-input);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+    }
 
-.btn-gradient {
-    background: linear-gradient(90deg, #4e73df, #1cc88a);
-    border: none;
-    color: white;
-    transition: all 0.3s ease;
-}
-.btn-gradient:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-}
+    .form-control::placeholder {
+        color: var(--text-muted);
+    }
 
-a.text-white:hover { text-shadow: 0 0 8px rgba(255,255,255,0.7); }
+    .form-control:focus {
+        background-color: var(--bg-input-focus);
+        box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+        border-color: var(--primary);
+        color: var(--text-main);
+    }
 
-@media (max-width: 420px) {
-    .register-card { width: 90%; padding: 2rem 1rem; }
-}
+    .btn-gradient {
+        background: linear-gradient(90deg, var(--primary), var(--success));
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    a.text-primary:hover {
+        text-shadow: 0 0 8px rgba(78, 115, 223, 0.3);
+    }
+
+    @media (max-width: 420px) {
+        .register-card {
+            width: 90%;
+            padding: 2rem 1rem;
+        }
+    }
 </style>
 
 {% endblock %}

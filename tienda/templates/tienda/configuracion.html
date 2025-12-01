@@ -1,0 +1,78 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}Configuración{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center animate__animated animate__fadeIn">
+    <div class="col-lg-8">
+        <div class="glass-effect rounded-4 p-5 shadow-lg position-relative overflow-hidden">
+
+            <div class="position-absolute top-0 start-0 w-100 h-100"
+                style="background: radial-gradient(circle at 90% 10%, rgba(255,255,255,0.05) 0%, transparent 50%); pointer-events: none;">
+            </div>
+
+            <h2 class="fw-bold text-main mb-4"><i class="fas fa-cog me-2 text-primary"></i> Configuración</h2>
+
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="p-4 rounded-3 glass-card border border-secondary border-opacity-25">
+                        <h5 class="text-main mb-3">Preferencias de la Aplicación</h5>
+
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded mb-3"
+                            style="background: var(--bg-surface-hover)">
+                            <div>
+                                <span class="text-main d-block">Modo Oscuro</span>
+                                <small class="text-muted">Alternar entre tema claro y oscuro</small>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="darkModeSwitch"
+                                    onchange="toggleDarkMode()">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded"
+                            style="background: var(--bg-surface-hover)">
+                            <div>
+                                <span class="text-main d-block">Idioma</span>
+                                <small class="text-muted">Selecciona el idioma de la interfaz</small>
+                            </div>
+                            <select class="form-select form-select-sm" style="width: auto;">
+                                <option selected>Español</option>
+                                <option>English</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 text-center">
+                <a href="{% url 'inicio' %}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">
+                    <i class="fas fa-arrow-left me-2"></i> Volver al Inicio
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sync switch with current theme
+    document.addEventListener('DOMContentLoaded', function () {
+        const isLight = document.body.classList.contains('light-mode');
+        const switchEl = document.getElementById('darkModeSwitch');
+        if (switchEl) {
+            switchEl.checked = !isLight;
+        }
+    });
+
+    // Listen for theme changes from other sources (like navbar)
+    document.addEventListener('themeChanged', function () {
+        const isLight = document.body.classList.contains('light-mode');
+        const switchEl = document.getElementById('darkModeSwitch');
+        if (switchEl) {
+            switchEl.checked = !isLight;
+        }
+    });
+</script>
+{% endblock %}

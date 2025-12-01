@@ -5,12 +5,12 @@
 
 <div class="container-fluid px-0">
 
-  <!-- Header Section - Liquid Glass -->
-  <div class="liquid-glass-header glass-header-compact mb-4">
+  <!-- Header Section -->
+  <div class="glass-header mb-4">
     <div class="container">
       <div class="d-flex justify-content-between align-items-center">
-        <h1 class="h4 mb-0 text-light fw-bold">
-          <i class="fas fa-history text-primary me-2"></i> Historial de Ventas
+        <h1 class="h4 mb-0 text-white fw-bold">
+          <i class="fas fa-history text-white me-2"></i> Historial de Ventas
         </h1>
         <a href="{% url 'ventas_list' %}" class="btn btn-outline-light btn-sm">
           <i class="fas fa-arrow-left me-1"></i> Volver
@@ -21,210 +21,168 @@
 
   <!-- Main Content -->
   <div class="container">
-  <div class="ventas-container animate__animated animate__fadeIn">
+    <div class="ventas-container animate__animated animate__fadeIn">
 
-  <div class="liquid-glass-card mb-4 p-3">
-    <form method="get" class="row g-3 align-items-end">
-      <div class="col-md-3">
-        <label for="fecha_inicio" class="form-label text-white">Fecha inicio:</label>
-        <input type="date" id="fecha_inicio" name="fecha_inicio"
-                value="{{ f_fecha_inicio }}"
-                class="form-control form-control-glass">
-
+      <div class="glass-card mb-4 p-3">
+        <form method="get" class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label for="fecha_inicio" class="form-label fw-bold" style="color: var(--text-main, #212529);">Fecha
+              inicio:</label>
+            <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ f_fecha_inicio }}" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label for="fecha_fin" class="form-label fw-bold" style="color: var(--text-main, #212529);">Fecha
+              fin:</label>
+            <input type="date" id="fecha_fin" name="fecha_fin" value="{{ f_fecha_fin }}" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label for="vendedor" class="form-label fw-bold" style="color: var(--text-main, #212529);">Vendedor:</label>
+            <select id="vendedor" name="vendedor" class="form-select select2">
+              <option value="">Todos</option>
+              {% for user in vendedores %}
+              <option value="{{ user.id }}" {% if f_vendedor==user.id|stringformat:"s" %}selected{% endif %}>
+                {{ user.username }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="fas fa-search me-1"></i>
+              Filtrar</button>
+            <a href="{% url 'ventas_historial' %}" class="btn btn-outline-secondary flex-grow-1"><i
+                class="fas fa-undo me-1"></i> Limpiar</a>
+          </div>
+        </form>
       </div>
-      <div class="col-md-3">
-        <label for="fecha_fin" class="form-label text-white">Fecha fin:</label>
-        <input type="date" id="fecha_fin" name="fecha_fin"
-                value="{{ f_fecha_fin }}"
-                class="form-control form-control-glass">
 
-      </div>
-      <div class="col-md-3">
-        <label for="vendedor" class="form-label text-white">Vendedor:</label>
-        <select id="vendedor" name="vendedor" class="form-select form-select-glass select2">
-            <option value="">Todos</option>
-            {% for user in vendedores %}
-                <option value="{{ user.id }}"
-                    {% if f_vendedor == user.id|stringformat:"s" %}selected{% endif %}>
-                    {{ user.username }}
-                </option>
+      <div class="table-responsive glass-card p-3">
+        <table id="historialTable" class="table table-hover align-middle w-100">
+          <thead class="text-center"
+            style="background: rgba(0,0,0,0.02); border-bottom: 2px solid var(--border-color, #dee2e6);">
+            <tr>
+              <th class="py-3 fw-bold" style="color: var(--text-main, #212529);">#Factura</th>
+              <th class="py-3 fw-bold" style="color: var(--text-main, #212529);">Fecha</th>
+              <th class="py-3 fw-bold" style="color: var(--text-main, #212529);">Cliente</th>
+              <th class="py-3 fw-bold" style="color: var(--text-main, #212529);">Vendedor</th>
+              <th class="py-3 fw-bold" style="color: var(--text-main, #212529);">Total</th>
+              <th class="py-3 fw-bold" style="color: var(--text-main, #212529);">Método de Pago</th>
+              <th class="py-3 fw-bold" style="color: var(--text-main, #212529);">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for venta in ventas %}
+            <tr style="border-bottom: 1px solid var(--border-color, #dee2e6);">
+              <td class="text-center py-3">
+                <span class="badge bg-secondary bg-opacity-10 fw-normal" style="color: var(--text-main, #212529);">
+                  {{ venta.factura_num }}
+                </span>
+              </td>
+              <td class="text-center py-3" style="color: var(--text-main, #212529);">
+                {{ venta.fecha|date:"d/m/Y H:i" }}
+              </td>
+              <td class="text-center py-3">
+                <span class="fw-bold" style="color: var(--text-main, #212529);">{{ venta.cliente.nombre }}</span>
+              </td>
+              <td class="text-center py-3" style="color: var(--text-main, #212529);">
+                {{ venta.vendedor.username }}
+              </td>
+              <td class="text-center py-3">
+                <span class="fw-bold text-success fs-6">${{ venta.total }}</span>
+              </td>
+              <td class="text-center py-3">
+                {% if venta.metodo_pago|lower == 'efectivo' %}
+                <span class="badge rounded-pill px-3 py-2"
+                  style="background-color: #198754; color: white; font-size: 0.9rem;">
+                  <i class="fas fa-money-bill-wave me-1"></i> Efectivo
+                </span>
+                {% elif venta.metodo_pago|lower == 'tarjeta' %}
+                <span class="badge rounded-pill px-3 py-2"
+                  style="background-color: #0d6efd; color: white; font-size: 0.9rem;">
+                  <i class="fas fa-credit-card me-1"></i> Tarjeta
+                </span>
+                {% else %}
+                <span class="badge rounded-pill px-3 py-2"
+                  style="background-color: #6c757d; color: white; font-size: 0.9rem;">
+                  {{ venta.metodo_pago|default:"Otro" }}
+                </span>
+                {% endif %}
+              </td>
+              <td class="text-center py-3">
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                  <a href="{% url 'ventas_detalle' venta.pk %}" class="btn btn-sm btn-outline-primary rounded-circle"
+                    title="Ver Detalle"
+                    style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <a href="{% url 'ventas_factura_pdf_rl' venta.pk %}"
+                    class="btn btn-sm btn-outline-danger rounded-circle" target="_blank" title="Descargar PDF"
+                    style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-file-pdf"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                <div class="d-flex flex-column align-items-center opacity-50">
+                  <i class="fas fa-receipt fa-3x mb-3" style="color: var(--text-muted, #6c757d);"></i>
+                  <h5 style="color: var(--text-muted, #6c757d);">No se encontraron ventas</h5>
+                  <p style="color: var(--text-muted, #6c757d);">Intenta ajustar los filtros</p>
+                </div>
+              </td>
+            </tr>
             {% endfor %}
-        </select>
-
+          </tbody>
+        </table>
       </div>
-      <div class="col-md-3 d-flex gap-2">
-        <button type="submit" class="btn btn-gradient flex-grow-1"><i class="fas fa-search me-1"></i> Filtrar</button>
-        <a href="{% url 'ventas_historial' %}" class="btn btn-outline-light flex-grow-1"><i class="fas fa-undo me-1"></i> Limpiar</a>
+
+      <div class="mt-3 text-end">
+        <h5 class="fw-bold" style="color: var(--text-main, #212529);">
+          Total Ventas: <span class="text-success">${{ total_ventas }}</span>
+        </h5>
       </div>
-    </form>
-  </div>
+    </div>
 
-  <div class="table-responsive">
-    <table id="historialTable" class="ventas-table align-middle text-light table-hover">
-      <thead class="text-center">
-        <tr>
-          <th>#Factura</th>
-          <th>Fecha</th>
-          <th>Cliente</th>
-          <th>Vendedor</th>
-          <th>Total</th>
-          <th>Método de pago</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for venta in ventas %}
-        <tr>
-          <td class="text-center">{{ venta.factura_num }}</td>
-          <td class="text-center">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
-          <td class="text-center">{{ venta.cliente.nombre }}</td>
-          <td class="text-center">{{ venta.vendedor.username }}</td>
-          <td class="text-center text-success fw-bold">${{ venta.total }}</td>
-          <td class="text-center">{{ venta.metodo_pago }}</td>
-          <td class="text-center">
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
-              <a href="{% url 'ventas_detalle' venta.pk %}" class="btn btn-sm btn-accion btn-ver" title="Ver Detalle">
-                <i class="fas fa-eye"></i>
-              </a>
-              <a href="{% url 'ventas_factura_pdf_rl' venta.pk %}" class="btn btn-sm btn-accion btn-pdf" target="_blank" title="Descargar PDF">
-                <i class="fas fa-file-pdf"></i>
-              </a>
-            </div>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="7" class="text-center text-light py-4">No se encontraron ventas.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    <script>
+      $(document).ready(function () {
+        $('#historialTable').DataTable({
+          language: {
+            search: "🔍 Buscar:",
+            lengthMenu: "Mostrar _MENU_ ventas",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ ventas",
+            paginate: { next: "Siguiente", previous: "Anterior" },
+            zeroRecords: "No se encontraron ventas"
+          },
+          order: [[1, "desc"]],
+          pageLength: 10,
+          dom: 'Bfrtip',
+          buttons: []
+        });
+      });
+    </script>
 
-  <div class="mt-3 text-end">
-    <h5 class="fw-bold text-light">Total Ventas: <span class="text-success">${{ total_ventas }}</span></h5>
   </div>
 </div>
-
-<script>
-$(document).ready(function() {
-  $('#historialTable').DataTable({
-    language: {
-      search: "🔍 Buscar:",
-      lengthMenu: "Mostrar _MENU_ ventas",
-      info: "Mostrando _START_ a _END_ de _TOTAL_ ventas",
-      paginate: { next: "Siguiente", previous: "Anterior" },
-      zeroRecords: "No se encontraron ventas"
-    },
-    order: [[1,"desc"]],
-    pageLength: 10
-  });
-});
-</script>
 
 <style>
-/* Contenedor principal */
-.ventas-container {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
+  /* Ensure text is readable in both light and dark modes */
+  body.light-mode .text-main,
+  body.light-mode th,
+  body.light-mode h5 {
+    color: #212529 !important;
+  }
 
-/* Tabla */
-.ventas-table {
-  background: transparent !important;
-  border-collapse: separate;
-  border-spacing: 0 8px;
-  width: 100%;
-}
+  body.dark-mode .text-main,
+  body.dark-mode th,
+  body.dark-mode h5 {
+    color: #e9ecef !important;
+  }
 
-.ventas-table thead th {
-  background: rgba(255,255,255,0.05);
-  border-bottom: 2px solid rgba(255,255,255,0.1);
-  text-align: center;
-  color: #fff;
-}
-
-.ventas-table tbody tr {
-  background: rgba(255,255,255,0.02);
-  border-radius: 12px;
-  transition: background 0.3s;
-}
-
-.ventas-table tbody tr:hover {
-  background: rgba(255,255,255,0.08);
-}
-
-/* DataTables inputs y paginación */
-.dataTables_wrapper {
-  background: rgba(255,255,255,0.1) !important;
-  color: #fff !important;
-  padding: 1rem;
-  border-radius: 15px;
-  backdrop-filter: blur(12px);
-}
-
-.dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select {
-  background: rgba(255,255,255,0.15) !important;
-  border: 1px solid rgba(255,255,255,0.25) !important;
-  color: #fff !important;
-  border-radius: 10px !important;
-  padding: 5px 8px;
-}
-
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate {
-  color: #fff !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-  background: rgba(255,255,255,0.15) !important;
-  border: 1px solid rgba(255,255,255,0.25) !important;
-  color: #fff !important;
-  border-radius: 8px;
-  margin: 0 2px;
-  transition: all 0.3s;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background: rgba(255,255,255,0.25) !important;
-  box-shadow: 0 0 10px rgba(255,255,255,0.2);
-}
-
-/* Botones de acción */
-.btn-accion {
-  border: none;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: 0.2s;
-}
-
-.btn-ver {
-  background: rgba(52,152,219,0.15);
-  color: #3498db;
-}
-.btn-ver:hover {
-  background: rgba(52,152,219,0.3);
-  color: #fff;
-}
-
-.btn-pdf {
-  background: rgba(231,76,60,0.15);
-  color: #e74c3c;
-}
-.btn-pdf:hover {
-  background: rgba(231,76,60,0.3);
-  color: #fff;
-}
+  /* Better hover effect for table rows */
+  tbody tr:hover {
+    background: var(--bg-surface-hover, rgba(0, 0, 0, 0.02));
+  }
 </style>
-
-  </div>
-  </div>
-</div>
 
 {% endblock %}

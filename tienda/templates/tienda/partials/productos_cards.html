@@ -1,74 +1,55 @@
 {% load static %}
 {% for producto in productos %}
-<div class="product-card animate__animated animate__fadeInUp">
-
-  <!-- Imagen del producto -->
-  <div class="producto-image">
+<div class="product-card-compact">
+  <!-- Image Section -->
+  <div class="product-img-container">
     {% if producto.imagen %}
-    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="producto-img">
+    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
     {% else %}
-    <img src="{% static 'img/producto_default.jpg' %}" alt="{{ producto.nombre }}" class="producto-img">
+    <img src="{% static 'img/producto_default.jpg' %}" alt="{{ producto.nombre }}">
     {% endif %}
-    <div class="producto-overlay">
-      <div class="overlay-content">
-        <a href="{% url 'ventas_create_producto' producto.pk %}" class="btn btn-success btn-sm">
-          <i class="fa-solid fa-cart-plus me-2"></i> Vender
-        </a>
-      </div>
+
+    <!-- Stock Badge -->
+    <span class="stock-badge {% if producto.stock < 10 %}low-stock{% else %}in-stock{% endif %}">
+      {{ producto.stock }} un.
+    </span>
+
+    <!-- Hover Actions -->
+    <div class="product-actions">
+      <a href="{% url 'ventas_create_producto' producto.pk %}" class="action-btn" title="Vender">
+        <i class="fas fa-cart-plus"></i>
+      </a>
+      <a href="{% url 'productos_update' producto.pk %}" class="action-btn" title="Editar">
+        <i class="fas fa-edit"></i>
+      </a>
+      <button type="button" class="action-btn" data-bs-toggle="modal" data-bs-target="#deleteModal{{ producto.pk }}"
+        title="Eliminar">
+        <i class="fas fa-trash-alt"></i>
+      </button>
     </div>
   </div>
 
-  <!-- Info del producto -->
-  <div class="producto-body">
-    <h5 class="card-title" title="{{ producto.nombre }}">
-      {{ producto.nombre|truncatewords:4 }}
-    </h5>
-
-    <div class="producto-price">
-      ${{ producto.precio|floatformat:0 }}
-    </div>
-
-    <div class="producto-stock mb-3">
-      <div class="d-flex justify-content-between align-items-center mb-1">
-        <small class="text-secondary" style="font-size: 0.8rem;">Stock disponible</small>
-        <small class="fw-bold text-light">{{ producto.stock }} un.</small>
-      </div>
-      <div class="stock-bar">
-        {% if producto.stock >= 100 %}
-        <div class="stock-filled" style="width: 100%"></div>
-        {% else %}
-        <div class="stock-filled" style="width: {{ producto.stock }}%"></div>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="d-flex gap-2 mt-auto">
-      <a href="{% url 'productos_update' producto.pk %}" class="btn btn-outline-light btn-sm flex-fill btn-action">
-        <i class="fa-solid fa-pen me-1"></i> Editar
-      </a>
-      <button type="button" class="btn btn-outline-danger btn-sm flex-fill btn-action" data-bs-toggle="modal"
-        data-bs-target="#deleteModal{{ producto.pk }}">
-        <i class="fa-solid fa-trash me-1"></i> Eliminar
-      </button>
-    </div>
+  <!-- Info Section -->
+  <div class="product-info">
+    <h6 class="product-name">{{ producto.nombre }}</h6>
+    <div class="product-price">${{ producto.precio|floatformat:0 }}</div>
   </div>
 </div>
 
 <!-- Modal Eliminar -->
-<div class="modal fade" id="deleteModal{{ producto.pk }}" tabindex="-1"
-  aria-labelledby="deleteModalLabel{{ producto.pk }}" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content bg-dark text-light">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel{{ producto.pk }}">Eliminar Producto</h5>
+<div class="modal fade" id="deleteModal{{ producto.pk }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-effect border-0">
+      <div class="modal-header border-bottom border-secondary border-opacity-25">
+        <h5 class="modal-title text-main">Eliminar Producto</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-      <div class="modal-body">
-        ¿Estás seguro de que deseas eliminar "{{ producto.nombre }}"?
+      <div class="modal-body text-main">
+        ¿Estás seguro de que deseas eliminar "<strong>{{ producto.nombre }}</strong>"?
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <a href="{% url 'productos_delete' producto.pk %}" class="btn btn-danger">Eliminar</a>
+      <div class="modal-footer border-top border-secondary border-opacity-25">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+        <a href="{% url 'productos_delete' producto.pk %}" class="btn btn-danger rounded-pill">Eliminar</a>
       </div>
     </div>
   </div>
@@ -76,6 +57,9 @@
 
 {% empty %}
 <div class="col-12">
-  <p class="text-center text-light mt-4">No hay productos disponibles.</p>
+  <div class="text-center py-5">
+    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+    <p class="text-muted">No se encontraron productos.</p>
+  </div>
 </div>
 {% endfor %}

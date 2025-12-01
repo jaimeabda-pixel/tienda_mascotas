@@ -1,0 +1,148 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row g-4 justify-content-center">
+        <!-- Columna Izquierda: Foto y Datos Básicos -->
+        <div class="col-lg-4">
+            <div class="glass-card p-4 rounded-4 text-center">
+                <form method="post" enctype="multipart/form-data" id="profileForm">
+                    {% csrf_token %}
+
+                    <!-- Foto de Perfil -->
+                    <div class="position-relative d-inline-block mb-4">
+                        {% if usuario.foto_perfil %}
+                        <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil"
+                            class="rounded-circle border border-3 border-primary shadow-lg"
+                            style="width: 150px; height: 150px; object-fit: cover;" id="profileImage">
+                        {% else %}
+                        <div class="rounded-circle border border-3 border-primary shadow-lg d-flex align-items-center justify-content-center bg-gradient-primary"
+                            style="width: 150px; height: 150px;" id="profilePlaceholder">
+                            <i class="fas fa-user fa-4x text-white"></i>
+                        </div>
+                        {% endif %}
+
+                        <!-- Botón para cambiar foto -->
+                        <label for="id_foto_perfil"
+                            class="position-absolute bottom-0 end-0 btn btn-primary btn-sm rounded-circle shadow d-flex align-items-center justify-content-center"
+                            style="width: 40px; height: 40px; cursor: pointer;">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" name="foto_perfil" id="id_foto_perfil" class="d-none" accept="image/*"
+                            onchange="previewImage(this)">
+                    </div>
+
+                    <h4 class="fw-bold text-main mb-1">{{ usuario.first_name }} {{ usuario.last_name }}</h4>
+                    <p class="text-muted mb-3">@{{ usuario.username }}</p>
+
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                            <i class="fas fa-user-shield me-1"></i>
+                            {% if usuario.is_superuser %}Administrador{% else %}Vendedor{% endif %}
+                        </span>
+                    </div>
+
+                    <hr class="border-secondary opacity-25">
+
+                    <div class="text-start px-3">
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Correo Electrónico</small>
+                            <div class="d-flex align-items-center text-main">
+                                <i class="fas fa-envelope me-2 text-primary opacity-75"></i>
+                                {{ usuario.email }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Fecha de Registro</small>
+                            <div class="d-flex align-items-center text-main">
+                                <i class="fas fa-calendar-alt me-2 text-primary opacity-75"></i>
+                                {{ usuario.date_joined|date:"d M, Y" }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Editar Datos -->
+        <div class="col-lg-8">
+            <div class="glass-card p-4 rounded-4 h-100">
+                <h4 class="fw-bold text-main mb-4">
+                    <i class="fas fa-user-edit me-2 text-primary"></i> Editar Información
+                </h4>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Nombre</label>
+                            <input type="text" name="first_name" value="{{ usuario.first_name }}"
+                                class="form-control bg-input border-theme text-main">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Apellido</label>
+                            <input type="text" name="last_name" value="{{ usuario.last_name }}"
+                                class="form-control bg-input border-theme text-main">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label text-muted">Correo Electrónico</label>
+                            <input type="email" name="email" value="{{ usuario.email }}"
+                                class="form-control bg-input border-theme text-main">
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn btn-primary px-4 rounded-pill">
+                            <i class="fas fa-save me-2"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.getElementById('profileImage');
+                const placeholder = document.getElementById('profilePlaceholder');
+
+                if (img) {
+                    img.src = e.target.result;
+                } else if (placeholder) {
+                    placeholder.outerHTML = `<img src="${e.target.result}" alt="Foto de perfil" 
+                        class="rounded-circle border border-3 border-primary shadow-lg" 
+                        style="width: 150px; height: 150px; object-fit: cover;" id="profileImage">`;
+                }
+
+                // Auto-submit el formulario
+                document.getElementById('profileForm').submit();
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
+<style>
+    .bg-input {
+        background-color: var(--bg-input) !important;
+    }
+
+    .border-theme {
+        border-color: var(--border-color) !important;
+    }
+
+    .form-control:focus {
+        background-color: var(--bg-input-focus) !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25) !important;
+        color: var(--text-main) !important;
+    }
+</style>
+{% endblock %}

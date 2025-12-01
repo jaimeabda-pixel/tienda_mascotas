@@ -1,81 +1,183 @@
 {% extends 'tienda/base.html' %}
 {% load static %}
 {% load widget_tweaks %}
-{% block title %}Formulario de Producto{% endblock %}
+{% block title %}{{ form.instance.pk|yesno:"Editar Producto,Crear Producto" }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <div class="card shadow-lg border-0 rounded-4 bg-dark text-light p-4">
-    <h2 class="mb-4 text-center">{{ form.instance.pk|yesno:"Editar Producto,Crear Producto" }}</h2>
 
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
+<div class="container-fluid" style="max-height: calc(100vh - 120px); overflow-y: auto;">
 
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label fw-bold">{{ form.nombre.label }}</label>
-          {{ form.nombre|add_class:"form-control form-control-sm" }}
-          {% for error in form.nombre.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
-        </div>
-        <div class="col-md-6">
-          <label class="form-label fw-bold">{{ form.codigo_barras.label }}</label>
-          {{ form.codigo_barras|add_class:"form-control form-control-sm" }}
-          {% for error in form.codigo_barras.errors %}
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="text-main mb-0">
+      <i class="fas fa-box me-2 text-primary"></i> {{ form.instance.pk|yesno:"Editar,Crear" }} Producto
+    </h4>
+    <a href="{% url 'productos_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="fas fa-arrow-left me-1"></i> Volver
+    </a>
+  </div>
+
+  <!-- Form Container -->
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+
+      <div class="glass-card rounded-3 p-3 shadow-lg">
+
+        <form method="post" enctype="multipart/form-data" id="productoForm">
+          {% csrf_token %}
+
+          <div class="row g-2">
+            <!-- Nombre -->
+            <div class="col-md-4">
+              <label class="form-label text-muted small mb-1">
+                <i class="fas fa-tag me-1 text-primary"></i> {{ form.nombre.label }}
+              </label>
+              {{ form.nombre|add_class:"form-control form-control-sm" }}
+              {% for error in form.nombre.errors %}
               <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
+              {% endfor %}
+            </div>
+
+            <!-- Código de Barras -->
+            <div class="col-md-4">
+              <label class="form-label text-muted small mb-1">
+                <i class="fas fa-barcode me-1 text-primary"></i> {{ form.codigo_barras.label }}
+              </label>
+              {{ form.codigo_barras|add_class:"form-control form-control-sm" }}
+              {% for error in form.codigo_barras.errors %}
+              <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- Precio -->
+            <div class="col-md-2">
+              <label class="form-label text-muted small mb-1">
+                <i class="fas fa-dollar-sign me-1 text-primary"></i> {{ form.precio.label }}
+              </label>
+              {{ form.precio|add_class:"form-control form-control-sm" }}
+              {% for error in form.precio.errors %}
+              <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- Stock -->
+            <div class="col-md-2">
+              <label class="form-label text-muted small mb-1">
+                <i class="fas fa-warehouse me-1 text-primary"></i> {{ form.stock.label }}
+              </label>
+              {{ form.stock|add_class:"form-control form-control-sm" }}
+              {% for error in form.stock.errors %}
+              <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- Descripción -->
+            <div class="col-md-8">
+              <label class="form-label text-muted small mb-1">
+                <i class="fas fa-align-left me-1 text-primary"></i> {{ form.descripcion.label }}
+              </label>
+              {{ form.descripcion|add_class:"form-control form-control-sm" }}
+              {% for error in form.descripcion.errors %}
+              <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- Imagen -->
+            <div class="col-md-4">
+              <label class="form-label text-muted small mb-1">
+                <i class="fas fa-image me-1 text-primary"></i> {{ form.imagen.label }}
+              </label>
+
+              {% if form.instance.imagen %}
+              <div class="mb-2">
+                <img src="{{ form.instance.imagen.url }}" alt="Actual" class="img-thumbnail"
+                  style="max-height: 60px; border-radius: 8px; border: 1px solid var(--border-color);">
+              </div>
+              {% endif %}
+
+              {{ form.imagen|add_class:"form-control form-control-sm" }}
+              {% for error in form.imagen.errors %}
+              <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="d-flex gap-2 mt-3 pt-2 border-top" style="border-color: var(--border-color) !important;">
+            <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+              <i class="fas fa-check me-1"></i> {{ form.instance.pk|yesno:"Actualizar,Guardar" }}
+            </button>
+            <a href="{% url 'productos_list' %}" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-times"></i>
+            </a>
+          </div>
+        </form>
       </div>
-
-
-        <div class="col-md-6">
-          <label class="form-label fw-bold">{{ form.precio.label }}</label>
-          {{ form.precio|add_class:"form-control form-control-sm" }}
-          {% for error in form.precio.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="mb-3 mt-3">
-        <label class="form-label fw-bold">{{ form.descripcion.label }}</label>
-        {{ form.descripcion|add_class:"form-control form-control-sm" }}
-        {% for error in form.descripcion.errors %}
-          <div class="text-danger small">{{ error }}</div>
-        {% endfor %}
-      </div>
-
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label fw-bold">{{ form.stock.label }}</label>
-          {{ form.stock|add_class:"form-control form-control-sm" }}
-          {% for error in form.stock.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label fw-bold">{{ form.imagen.label }}</label>
-          {{ form.imagen|add_class:"form-control form-control-sm" }}
-          {% for error in form.imagen.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
-        </div>
-      </div>
-
-      {% if form.instance.imagen %}
-        <div class="text-center mt-3 mb-3">
-          <p class="mb-1">Imagen actual:</p>
-          <img src="{{ form.instance.imagen.url }}" alt="Imagen del producto" class="img-thumbnail" width="150">
-        </div>
-      {% endif %}
-
-      <div class="d-flex justify-content-center gap-2 mt-4">
-        <button type="submit" class="btn btn-gradient">Guardar</button>
-        <a href="{% url 'productos_list' %}" class="btn btn-outline-light">Cancelar</a>
-      </div>
-    </form>
+    </div>
   </div>
 </div>
+
+<style>
+  /* Form styling */
+  #productoForm input,
+  #productoForm select,
+  #productoForm textarea {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 6px !important;
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.875rem !important;
+    transition: all 0.3s ease;
+  }
+
+  #productoForm input::placeholder,
+  #productoForm textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  #productoForm input:focus,
+  #productoForm select:focus,
+  #productoForm textarea:focus {
+    background: var(--bg-input-focus) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25) !important;
+    outline: none;
+  }
+
+  .form-label {
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+  }
+
+  /* File input styling */
+  #productoForm input[type="file"] {
+    padding: 0.25rem !important;
+    font-size: 0.75rem !important;
+    cursor: pointer;
+  }
+
+  #productoForm input[type="file"]::-webkit-file-upload-button {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-main);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #productoForm input[type="file"]::-webkit-file-upload-button:hover {
+    background: var(--bg-surface-hover);
+  }
+
+  /* Textarea specific */
+  #productoForm textarea {
+    min-height: 60px;
+    resize: vertical;
+  }
+</style>
 
 {% endblock %}

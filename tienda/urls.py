@@ -6,8 +6,8 @@ from . import views
 urlpatterns = [
     # Inicio y autenticación
     path('', login_required(views.inicio), name='inicio'),
-    path('login/', LoginView.as_view(template_name='tienda/login.html'), name='login'),
-    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
     path('registrar-vendedor/', views.registrar_vendedor, name='registrar_vendedor'),
 
     # Productos
@@ -26,6 +26,8 @@ urlpatterns = [
     # Vendedores
     path('vendedores/', views.vendedores_list, name='vendedores_list'),
     path('vendedores/crear/', views.vendedores_create, name='vendedores_create'),
+    path('vendedores/<int:pk>/editar/', views.vendedores_update, name='vendedores_update'),
+    path('vendedores/<int:pk>/eliminar/', views.vendedores_delete, name='vendedores_delete'),
 
     # Ventas
     path('ventas/', views.ventas_list, name='ventas_list'),
@@ -46,5 +48,9 @@ urlpatterns = [
     path('contacto/', views.contacto, name='contacto'),
     path('acerca/', views.acerca, name='acerca'),
     path('productos/buscar-htmx/', views.buscar_productos_htmx, name='buscar_productos_htmx'),
+    path('perfil/', views.perfil, name='perfil'),
+    path('configuracion/', views.configuracion, name='configuracion'),
+    path('notificaciones/', views.notificaciones, name='notificaciones'),
+    path('graficos/', views.graficos, name='graficos'),
 
-    ]
+]

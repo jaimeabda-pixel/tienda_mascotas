@@ -4,14 +4,24 @@
 
 {% block content %}
 <div class="container py-4">
-  <div class="card shadow-lg p-4 rounded-4 mx-auto" style="max-width: 600px;">
-    <h2 class="text-center mb-4">Registrar Vendedor</h2>
+  <div class="glass-card shadow-lg p-4 rounded-4 mx-auto" style="max-width: 600px;">
+    <h2 class="text-center mb-4 text-main">Registrar Vendedor</h2>
     <form method="post" novalidate>
       {% csrf_token %}
-      {{ form.as_p }}
+
+      {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label text-muted">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
       <div class="text-center mt-3">
-        <button type="submit" class="btn btn-primary btn-lg">
-          <i class="bi bi-check-lg"></i> Guardar
+        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5">
+          <i class="fas fa-check me-2"></i> Guardar
         </button>
       </div>
     </form>
@@ -19,19 +29,24 @@
 </div>
 
 <style>
-  .card {
-    border-radius: 20px;
-    background: linear-gradient(135deg, #4e73df, #1cc88a);
-    color: white;
+  input,
+  select,
+  textarea {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 10px !important;
+    padding: 10px !important;
+    width: 100%;
   }
-  input, select, textarea {
-    border-radius: 10px;
-    padding: 10px;
-  }
-  button.btn-primary {
-    border-radius: 20px;
-    background-color: #1cc88a;
-    border: none;
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    background: var(--bg-input-focus) !important;
+    border-color: var(--primary) !important;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25) !important;
   }
 </style>
 {% endblock %}

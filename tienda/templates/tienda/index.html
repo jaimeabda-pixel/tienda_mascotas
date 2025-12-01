@@ -1,648 +1,489 @@
 {% extends 'tienda/base.html' %}
-{% load static %}
-{% block title %}Inicio - Dashboard{% endblock %}
+{% load static humanize %}
+
+{% block title %}Inicio - Tienda para Mascotas{% endblock %}
 
 {% block content %}
+<div class="ml-homepage fade-in-up">
 
-<div class="dashboard-container p-4">
-
-  <!-- Hero Section con búsqueda -->
-  <div class="hero-section mb-5 animate__animated animate__fadeInDown">
-    <div class="hero-content text-center">
-      <h1 class="display-4 fw-bold text-light mb-2">
-        <i class="fa-solid fa-paw me-2"></i>Tienda para Mascotas
-      </h1>
-      <p class="text-secondary fs-5 mb-4">Panel de Control y Gestión</p>
-      
-      <!-- Buscador mejorado -->
-      <div class="search-wrapper mx-auto mb-5">
-        <form method="get" action="{% url 'productos_list' %}" class="search-form">
-          <div class="input-group input-group-lg">
-            <span class="input-group-text bg-transparent border-light border-2">
-              <i class="fa-solid fa-magnifying-glass text-secondary"></i>
-            </span>
-            <input type="text" name="q" class="form-control bg-dark text-light border-light border-2" 
-                   placeholder="Buscar productos para tu mascota...">
-            <button type="submit" class="btn btn-gradient px-4 fw-600">
-              <i class="fa-solid fa-search me-2"></i> Buscar
-            </button>
-          </div>
-        </form>
+  <!-- HEADER & STATS -->
+  <div class="container-fluid px-4 mb-5">
+    <div class="glass-header d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 p-4">
+      <div>
+        <h1 class="fw-bold mb-1 text-white">
+          {% if role == 'admin' %}Panel de Control Global{% else %}Mi Tablero de Ventas{% endif %}
+        </h1>
+        <p class="mb-0 text-white-50">
+          {% if role == 'admin' %}Visión general del negocio{% else %}Bienvenido, {{
+          user.first_name|default:user.username }}{% endif %}
+        </p>
       </div>
+      <div class="text-end mt-3 mt-md-0">
+        <h5 class="mb-0 text-white">{% now "l, d F Y" %}</h5>
+        <small class="text-white-50">{% now "H:i" %}</small>
+      </div>
+    </div>
+
+    <!-- STATS CARDS -->
+    <div class="row g-4">
+      {% if role == 'admin' %}
+      <!-- ADMIN STATS -->
+      <div class="col-md-3">
+        <div class="stat-card-modern p-4 rounded-4 h-100">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <p class="text-muted mb-1">Ventas Hoy</p>
+              <h3 class="fw-bold mb-0">{{ ventas_hoy }}</h3>
+            </div>
+            <div class="icon-box bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
+              <i class="fas fa-shopping-cart fa-lg"></i>
+            </div>
+          </div>
+          <small class="text-success"><i class="fas fa-arrow-up me-1"></i>Global</small>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card-modern p-4 rounded-4 h-100">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <p class="text-muted mb-1">Ingresos Hoy</p>
+              <h3 class="fw-bold mb-0">${{ ingresos_hoy|intcomma }}</h3>
+            </div>
+            <div class="icon-box bg-success bg-opacity-10 text-success p-3 rounded-circle">
+              <i class="fas fa-dollar-sign fa-lg"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card-modern p-4 rounded-4 h-100">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <p class="text-muted mb-1">Vendedores Activos</p>
+              <h3 class="fw-bold mb-0">{{ vendedores_activos }}</h3>
+            </div>
+            <div class="icon-box bg-info bg-opacity-10 text-info p-3 rounded-circle">
+              <i class="fas fa-users fa-lg"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card-modern p-4 rounded-4 h-100">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <p class="text-muted mb-1">Comisión Pagada</p>
+              <h3 class="fw-bold mb-0">${{ comision_total_pagada|intcomma }}</h3>
+            </div>
+            <div class="icon-box bg-warning bg-opacity-10 text-warning p-3 rounded-circle">
+              <i class="fas fa-hand-holding-usd fa-lg"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% else %}
+      <!-- VENDOR STATS -->
+      <div class="col-md-4">
+        <div class="stat-card-modern p-4 rounded-4 h-100">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <p class="text-muted mb-1">Mis Ventas Hoy</p>
+              <h3 class="fw-bold mb-0">{{ ventas_hoy_count }}</h3>
+              <small class="text-muted">Total: ${{ total_vendido_hoy|intcomma }}</small>
+            </div>
+            <div class="icon-box bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
+              <i class="fas fa-tag fa-lg"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card-modern p-4 rounded-4 h-100">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <p class="text-muted mb-1">Mi Comisión (Mes)</p>
+              <h3 class="fw-bold mb-0 text-success">${{ comision_mes|intcomma }}</h3>
+            </div>
+            <div class="icon-box bg-success bg-opacity-10 text-success p-3 rounded-circle">
+              <i class="fas fa-coins fa-lg"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card-modern p-4 rounded-4 h-100">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <p class="text-muted mb-1">Meta Mensual</p>
+              <h3 class="fw-bold mb-0">${{ meta|intcomma }}</h3>
+            </div>
+            <div class="icon-box bg-warning bg-opacity-10 text-warning p-3 rounded-circle">
+              <i class="fas fa-trophy fa-lg"></i>
+            </div>
+          </div>
+          <div class="progress mt-3" style="height: 8px;">
+            <div class="progress-bar bg-gradient-warning" role="progressbar" style="width: {{ progreso_meta }}%"></div>
+          </div>
+          <small class="text-muted mt-2 d-block">{{ progreso_meta }}% completado</small>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 
-  <!-- KPIs con Carrusel mejorado -->
-  <div class="kpi-section mb-5">
-    <h3 class="text-light mb-4">
-      <i class="fa-solid fa-chart-line me-2"></i> Métricas en Tiempo Real
-    </h3>
-    
-    <div id="kpiCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel">
-      <div class="carousel-indicators mb-4">
-        <button type="button" data-bs-target="#kpiCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
-        <button type="button" data-bs-target="#kpiCarousel" data-bs-slide-to="1"></button>
-        <button type="button" data-bs-target="#kpiCarousel" data-bs-slide-to="2"></button>
-        <button type="button" data-bs-target="#kpiCarousel" data-bs-slide-to="3"></button>
-      </div>
+  <!-- Quick Access Cards Carousel (Mercado Libre Style) -->
+  <div class="container-fluid px-4 mb-4">
+    <h5 class="mb-3 fw-bold ps-2 border-start border-4 border-primary">Accesos Rápidos</h5>
+    <div class="ml-carousel-wrapper">
+      <!-- Arrows -->
+      <button class="ml-carousel-arrow ml-carousel-arrow-left" id="scrollLeft"><i
+          class="fas fa-chevron-left"></i></button>
+      <button class="ml-carousel-arrow ml-carousel-arrow-right" id="scrollRight"><i
+          class="fas fa-chevron-right"></i></button>
 
-      <div class="carousel-inner">
-
-        <!-- Ventas Hoy -->
-        <div class="carousel-item active">
-          <a href="{% url 'ventas_list' %}" class="text-decoration-none">
-            <div class="kpi-card kpi-ventas rounded-4 p-5 animate__animated animate__fadeIn">
-              <div class="kpi-icon mb-3">
-                <i class="fa-solid fa-cart-shopping"></i>
-              </div>
-              <h4 class="text-light mb-2">Ventas Hoy</h4>
-              <p class="kpi-value">{{ ventas_hoy }}</p>
-              <p class="kpi-subtitle">
-                <i class="fa-solid fa-arrow-right me-1"></i> Click para ver más
-              </p>
-            </div>
-          </a>
-        </div>
-
-        <!-- Stock Bajo -->
-        <div class="carousel-item">
-          <a href="{% url 'productos_list' %}" class="text-decoration-none">
-            <div class="kpi-card kpi-alerta rounded-4 p-5 animate__animated animate__fadeIn">
-              <div class="kpi-icon mb-3">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-              </div>
-              <h4 class="text-light mb-2">Stock Bajo</h4>
-              <p class="kpi-value">{{ productos_stock_bajo.count }}</p>
-              <p class="kpi-subtitle">
-                <i class="fa-solid fa-arrow-right me-1"></i> Productos con poco stock
-              </p>
-            </div>
-          </a>
-        </div>
-
-        <!-- Producto Más Vendido -->
-        {% if top_producto %}
-        <div class="carousel-item">
-          <a href="{% url 'productos_update' top_producto.id %}" class="text-decoration-none">
-            <div class="kpi-card kpi-star rounded-4 p-5">
-              <div class="row align-items-center h-100">
-                <div class="col-md-7">
-                  <div class="kpi-icon mb-3">
-                    <i class="fa-solid fa-star"></i>
-                  </div>
-                  <h4 class="text-light mb-2">Producto Más Vendido</h4>
-                  <p class="kpi-product-name">{{ top_producto.nombre }}</p>
-                  <div class="kpi-stats">
-                    <span class="badge bg-light text-dark">
-                      <i class="fa-solid fa-box me-1"></i>{{ total_vendido_top|default:"0" }} unidades
-                    </span>
-                  </div>
-                </div>
-                <div class="col-md-5 text-center">
-                  {% if top_producto.imagen %}
-                    <img src="{{ top_producto.imagen.url }}" alt="{{ top_producto.nombre }}" class="kpi-product-img">
-                  {% else %}
-                    <img src="{% static 'img/producto_default.jpg' %}" alt="{{ top_producto.nombre }}" class="kpi-product-img">
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
-        {% else %}
-        <div class="carousel-item">
-          <div class="kpi-card kpi-empty rounded-4 p-5">
-            <div class="kpi-icon mb-3">
-              <i class="fa-solid fa-inbox"></i>
-            </div>
-            <h4 class="text-light mb-2">Sin Ventas</h4>
-            <p class="kpi-subtitle">Comienza a registrar ventas</p>
+      <div class="ml-carousel" id="carousel">
+        <!-- Common Cards -->
+        <a href="{% url 'ventas_create' %}" class="ml-card-carousel">
+          <div class="ml-icon-wrapper bg-ml-yellow">
+            <i class="fas fa-cash-register fa-2x" style="color: #333;"></i>
           </div>
-        </div>
+          <h6 class="ml-card-title">Nueva Venta</h6>
+          <p class="ml-card-desc">Registrar venta rápida.</p>
+        </a>
+
+        <a href="{% url 'ventas_list' %}" class="ml-card-carousel">
+          <div class="ml-icon-wrapper bg-ml-yellow">
+            <i class="fas fa-history fa-2x" style="color: #333;"></i>
+          </div>
+          <h6 class="ml-card-title">Historial</h6>
+          <p class="ml-card-desc">Ver mis ventas pasadas.</p>
+        </a>
+
+        <a href="{% url 'clientes_list' %}" class="ml-card-carousel">
+          <div class="ml-icon-wrapper bg-ml-yellow">
+            <i class="fas fa-users fa-2x" style="color: #333;"></i>
+          </div>
+          <h6 class="ml-card-title">Clientes</h6>
+          <p class="ml-card-desc">Gestionar cartera.</p>
+        </a>
+
+        <a href="{% url 'perfil' %}" class="ml-card-carousel">
+          <div class="ml-icon-wrapper" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="fas fa-user-circle fa-2x" style="color: white;"></i>
+          </div>
+          <h6 class="ml-card-title">Mi Perfil</h6>
+          <p class="ml-card-desc">Ver mis datos.</p>
+        </a>
+
+        {% if role == 'admin' %}
+        <!-- Admin Only Cards -->
+        <a href="{% url 'vendedores_list' %}" class="ml-card-carousel">
+          <div class="ml-icon-wrapper bg-ml-yellow">
+            <i class="fas fa-user-tie fa-2x" style="color: #333;"></i>
+          </div>
+          <h6 class="ml-card-title">Vendedores</h6>
+          <p class="ml-card-desc">Gestión de personal.</p>
+        </a>
+
+        <a href="{% url 'productos_list' %}" class="ml-card-carousel">
+          <div class="ml-icon-wrapper bg-ml-yellow">
+            <i class="fas fa-box fa-2x" style="color: #333;"></i>
+          </div>
+          <h6 class="ml-card-title">Productos</h6>
+          <p class="ml-card-desc">Inventario global.</p>
+        </a>
+
+        <a href="{% url 'graficos' %}" class="ml-card-carousel">
+          <div class="ml-icon-wrapper bg-ml-yellow">
+            <i class="fas fa-chart-line fa-2x" style="color: #333;"></i>
+          </div>
+          <h6 class="ml-card-title">Reportes</h6>
+          <p class="ml-card-desc">Analíticas globales.</p>
+        </a>
+
+        <a href="{% url 'configuracion' %}" class="ml-card-carousel">
+          <div class="ml-icon-wrapper bg-ml-yellow">
+            <i class="fas fa-cog fa-2x" style="color: #333;"></i>
+          </div>
+          <h6 class="ml-card-title">Configuración</h6>
+          <p class="ml-card-desc">Ajustes del sistema.</p>
+        </a>
         {% endif %}
 
-        <!-- Total Clientes -->
-        <div class="carousel-item">
-          <a href="{% url 'clientes_list' %}" class="text-decoration-none">
-            <div class="kpi-card kpi-clientes rounded-4 p-5 animate__animated animate__fadeIn">
-              <div class="kpi-icon mb-3">
-                <i class="fa-solid fa-users"></i>
-              </div>
-              <h4 class="text-light mb-2">Total Clientes</h4>
-              <p class="kpi-value">{{ clientes_total }}</p>
-              <p class="kpi-subtitle">
-                <i class="fa-solid fa-arrow-right me-1"></i> Click para ver más
-              </p>
-            </div>
-          </a>
-        </div>
-
+        <a href="{% url 'notificaciones' %}" class="ml-card-carousel">
+          <div class="ml-icon-wrapper bg-ml-yellow">
+            <i class="fas fa-bell fa-2x" style="color: #333;"></i>
+          </div>
+          <h6 class="ml-card-title">Alertas</h6>
+          <p class="ml-card-desc">Ver notificaciones.</p>
+        </a>
       </div>
-
-      <!-- Controles mejorados -->
-      <button class="carousel-control-prev" type="button" data-bs-target="#kpiCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#kpiCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-      </button>
     </div>
   </div>
 
-  <!-- Productos Destacados -->
-  <div class="productos-section">
-    <div class="section-header mb-5">
-      <h3 class="text-light">
-        <i class="fa-solid fa-sparkles me-2"></i> Productos Destacados
-      </h3>
-      <p class="text-secondary small">Tus productos disponibles en stock</p>
+  <!-- Recent Activity (Vendor) or Promo (Admin/Both) -->
+  {% if role == 'vendedor' %}
+  <div class="container-fluid px-4 mb-5">
+    <h5 class="mb-3 fw-bold ps-2 border-start border-4 border-success">Últimas Ventas</h5>
+    <div class="card glass-card border-0">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="bg-light">
+              <tr>
+                <th class="ps-4">ID</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for venta in ultimas_ventas %}
+              <tr>
+                <td class="ps-4 fw-bold">#{{ venta.id }}</td>
+                <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                <td>{{ venta.cliente.nombre|default:"General" }}</td>
+                <td class="fw-bold text-success">${{ venta.total|intcomma }}</td>
+                <td><span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Pagada</span></td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-4 text-muted">No has realizado ventas recientes.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+  </div>
+  {% endif %}
 
-    {% if productos %}
-    <div class="productos-grid">
-      {% for producto in productos %}
-      <div class="producto-card glass-card rounded-4 overflow-hidden animate__animated animate__fadeInUp">
-        
-        <!-- Imagen del producto -->
-        <div class="producto-image">
-          {% if producto.imagen %}
-            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-fluid">
-          {% else %}
-            <img src="{% static 'img/producto_default.jpg' %}" alt="{{ producto.nombre }}" class="img-fluid">
-          {% endif %}
-          <div class="producto-overlay">
-            <div class="overlay-content">
-              <a href="{% url 'ventas_create_producto' producto.pk %}" class="btn btn-gradient btn-lg">
-                <i class="fa-solid fa-cart-plus me-2"></i> Vender
-              </a>
+  <!-- Premium Promotional Carousel (Keep for everyone as it looks good) -->
+  <div class="container-fluid px-4 mb-5">
+    <div id="promoCarousel" class="carousel slide premium-carousel" data-bs-ride="carousel">
+      <div class="carousel-indicators premium-indicators">
+        <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="1"></button>
+      </div>
+
+      <div class="carousel-inner premium-carousel-inner">
+        <!-- Slide 1 -->
+        <div class="carousel-item active">
+          <div class="premium-slide bg-gradient-dark">
+            <div class="premium-slide-overlay"></div>
+            <div class="container h-100 position-relative">
+              <div class="row align-items-center h-100">
+                <div class="col-md-7 text-white p-4 p-md-5 premium-content">
+                  <div class="premium-badge mb-3"><i class="fas fa-star me-2"></i><span>PREMIUM POS</span></div>
+                  <h1 class="premium-title mb-3">SISTEMA MODERNO</h1>
+                  <p class="premium-subtitle mb-4">Gestiona tu negocio con estilo y eficiencia.</p>
+                </div>
+                <div class="col-md-5 d-none d-md-flex justify-content-center">
+                  <i class="fas fa-rocket fa-8x text-white opacity-50"></i>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- Info del producto -->
-        <div class="producto-body p-2">
-          <h5 class="text-light fw-600 mb-1" title="{{ producto.nombre }}" style="font-size: 0.95rem;">
-            {{ producto.nombre|truncatewords:5 }}
-          </h5>
-          
-          <div class="producto-price mb-2">
-            <span class="price-value" style="font-size: 1.5rem;">${{ producto.precio|floatformat:0 }}</span>
-          </div>
-
-          <div class="producto-stock mb-2">
-            <small class="text-secondary" style="font-size: 0.75rem;">Stock:</small>
-            <div class="stock-bar">
-              {% if producto.stock >= 100 %}
-                <div class="stock-filled" style="width: 100%"></div>
-              {% else %}
-                <div class="stock-filled" style="width: {{ producto.stock }}%"></div>
-              {% endif %}
+        <!-- Slide 2 -->
+        <div class="carousel-item">
+          <div class="premium-slide bg-gradient-blue">
+            <div class="premium-slide-overlay"></div>
+            <div class="container h-100 position-relative">
+              <div class="row align-items-center h-100">
+                <div class="col-md-7 text-white p-4 p-md-5 premium-content">
+                  <div class="premium-badge premium-badge-info mb-3"><i
+                      class="fas fa-chart-pie me-2"></i><span>ANÁLISIS</span></div>
+                  <h1 class="premium-title mb-3">CONTROL TOTAL</h1>
+                  <p class="premium-subtitle mb-4">Visualiza tus metas y comisiones en tiempo real.</p>
+                </div>
+                <div class="col-md-5 d-none d-md-flex justify-content-center">
+                  <i class="fas fa-chart-bar fa-8x text-white opacity-50"></i>
+                </div>
+              </div>
             </div>
-            <small class="text-light fw-600" style="font-size: 0.75rem;">{{ producto.stock }} un.</small>
-          </div>
-
-          <div class="d-flex gap-1">
-            <a href="{% url 'productos_update' producto.pk %}" class="btn btn-sm btn-outline-light flex-grow-1" style="font-size: 0.75rem; padding: 0.25rem;">
-              <i class="fa-solid fa-pen me-1"></i> Editar
-            </a>
           </div>
         </div>
       </div>
-      {% endfor %}
     </div>
-    {% else %}
-    <div class="text-center py-5">
-      <i class="fa-solid fa-box-open text-secondary" style="font-size: 3rem; opacity: 0.5;"></i>
-      <p class="text-secondary mt-3">No hay productos disponibles</p>
-    </div>
-    {% endif %}
   </div>
 
 </div>
 
 <style>
-/* === DASHBOARD CONTAINER === */
-.dashboard-container {
-  background: transparent;
-  min-height: 100vh;
-}
-
-/* === HERO SECTION === */
-.hero-section {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border-radius: 20px;
-  padding: 3rem 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-.hero-content {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.hero-content h1 {
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: slideDown 0.6s ease-out;
-}
-
-.search-wrapper {
-  max-width: 600px;
-}
-
-.search-form .input-group {
-  gap: 0;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
-  transition: all 0.3s ease;
-}
-
-.search-form .input-group:focus-within {
-  box-shadow: 0 12px 48px rgba(102, 126, 234, 0.25);
-}
-
-.search-form input {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: none !important;
-  padding: 1rem !important;
-}
-
-.search-form input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.search-form input:focus {
-  background: rgba(255, 255, 255, 0.12) !important;
-  box-shadow: none !important;
-}
-
-/* === KPI SECTION === */
-.kpi-section h3 {
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-
-/* Carrusel personalizado */
-.carousel-dark .carousel-indicators [data-bs-target] {
-  background-color: rgba(255, 255, 255, 0.3);
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.carousel-dark .carousel-indicators .active {
-  background-color: #667eea;
-  box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
-}
-
-.carousel-control-prev,
-.carousel-control-next {
-  width: 50px;
-  height: 50px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0.6;
-  transition: all 0.3s ease;
-  background: rgba(102, 126, 234, 0.2);
-  border-radius: 50%;
-}
-
-.carousel-control-prev:hover,
-.carousel-control-next:hover {
-  opacity: 1;
-  background: rgba(102, 126, 234, 0.4);
-}
-
-/* === KPI CARDS === */
-.kpi-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  min-height: 250px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s ease;
-  cursor: pointer;
-}
-
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-  transition: left 0.6s;
-}
-
-.kpi-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
-  transform: translateY(-8px);
-}
-
-.kpi-card:hover::before {
-  left: 100%;
-}
-
-.kpi-card a {
-  text-decoration: none;
-  width: 100%;
-}
-
-.kpi-icon {
-  font-size: 3rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.kpi-card h4 {
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.kpi-value {
-  font-size: 3.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 1rem 0;
-}
-
-.kpi-subtitle {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.95rem;
-}
-
-.kpi-product-name {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #fff;
-  margin: 0.5rem 0;
-}
-
-.kpi-stats {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-/* Variaciones de KPI */
-.kpi-ventas {
-  background: linear-gradient(135deg, rgba(78, 115, 223, 0.15), rgba(28, 200, 138, 0.15));
-  border-color: rgba(102, 126, 234, 0.3);
-}
-
-.kpi-alerta {
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(244, 67, 54, 0.15));
-  border-color: rgba(255, 193, 7, 0.3);
-}
-
-.kpi-star {
-  background: linear-gradient(135deg, rgba(54, 185, 204, 0.15), rgba(28, 200, 138, 0.15));
-  border-color: rgba(54, 185, 204, 0.3);
-}
-
-.kpi-clientes {
-  background: linear-gradient(135deg, rgba(133, 135, 150, 0.15), rgba(90, 92, 105, 0.15));
-  border-color: rgba(133, 135, 150, 0.3);
-}
-
-.kpi-empty {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* === PRODUCTOS SECTION === */
-.productos-section {
-  margin-top: 5rem;
-}
-
-.section-header h3 {
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-
-.section-header p {
-  margin-top: 0.5rem;
-  font-size: 0.95rem;
-}
-
-.productos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
-  animation: fadeInUp 0.6s ease-out;
-}
-
-/* === PRODUCTO CARD === */
-.producto-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 0;
-}
-
-.producto-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(102, 126, 234, 0.3);
-  box-shadow: 0 20px 50px rgba(102, 126, 234, 0.15);
-  transform: translateY(-12px);
-}
-
-.producto-image {
-  position: relative;
-  height: 150px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.producto-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-
-.producto-card:hover .producto-image img {
-  transform: scale(1.1);
-}
-
-.producto-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.producto-card:hover .producto-overlay {
-  opacity: 1;
-}
-
-.overlay-content {
-  text-align: center;
-}
-
-.overlay-content .btn {
-  animation: slideUp 0.3s ease-out;
-}
-
-.producto-body {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.producto-body h5 {
-  font-weight: 600;
-  line-height: 1.4;
-  flex-grow: 1;
-}
-
-.price-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.producto-stock {
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-}
-
-.stock-bar {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  overflow: hidden;
-  margin: 0.5rem 0;
-}
-
-.stock-filled {
-  height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-/* === ANIMACIONES === */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .hero-section {
-    padding: 2rem 1.5rem;
+  /* Mercado Libre Inspired Styles */
+  .ml-homepage {
+    padding-bottom: 3rem;
   }
 
-  .hero-content h1 {
-    font-size: 2rem;
+  .ml-carousel-wrapper {
+    position: relative;
+    margin: 0 auto;
+    max-width: 100%;
   }
 
-  .search-form .input-group {
-    flex-direction: column;
-  }
-
-  .search-form .btn {
-    width: 100%;
-    margin-top: 0.5rem;
-  }
-
-  .productos-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  .ml-carousel {
+    display: flex;
     gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 1rem;
+    scrollbar-width: none;
   }
 
-  .kpi-card {
-    min-height: 200px;
-    padding: 2rem 1rem;
+  .ml-carousel::-webkit-scrollbar {
+    display: none;
   }
 
-  .kpi-value {
+  .ml-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #ffe600;
+    border: 2px solid rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s;
+  }
+
+  .ml-carousel-arrow:hover {
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .ml-carousel-arrow-left {
+    left: 10px;
+  }
+
+  .ml-carousel-arrow-right {
+    right: 10px;
+  }
+
+  .ml-card-carousel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem 1rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 180px;
+    max-width: 180px;
+    flex-shrink: 0;
+  }
+
+  .ml-card-carousel:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    background: var(--bg-surface-hover);
+  }
+
+  .ml-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .bg-ml-yellow {
+    background: #ffe600;
+  }
+
+  .ml-card-title {
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .ml-card-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+  }
+
+  /* Premium Carousel */
+  .premium-carousel {
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .premium-slide {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .bg-gradient-dark {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .bg-gradient-blue {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+
+  .premium-slide-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .premium-content {
+    z-index: 2;
+    position: relative;
+  }
+
+  .premium-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    backdrop-filter: blur(5px);
+    color: white;
+  }
+
+  .premium-title {
     font-size: 2.5rem;
+    font-weight: 800;
   }
 
-  .carousel-control-prev,
-  .carousel-control-next {
-    width: 40px;
-    height: 40px;
+  .premium-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
   }
-}
-
-/* === UTILIDADES === */
-.fw-600 {
-  font-weight: 600;
-}
-
-.opacity-50 {
-  opacity: 0.5;
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 </style>
 
+<script>
+  // Carousel Logic
+  document.addEventListener('DOMContentLoaded', function () {
+    const carousel = document.getElementById('carousel');
+    const scrollLeftBtn = document.getElementById('scrollLeft');
+    const scrollRightBtn = document.getElementById('scrollRight');
+
+    if (carousel && scrollLeftBtn && scrollRightBtn) {
+      scrollRightBtn.addEventListener('click', () => carousel.scrollBy({ left: 250, behavior: 'smooth' }));
+      scrollLeftBtn.addEventListener('click', () => carousel.scrollBy({ left: -250, behavior: 'smooth' }));
+    }
+  });
+</script>
 {% endblock %}

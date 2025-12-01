@@ -1,0 +1,682 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Ejecutivo - Tienda Mascotas{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    .kpi-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 1.8rem;
+        height: 100%;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+    }
+
+    .kpi-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary);
+    }
+
+    .kpi-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 1.2rem;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-label {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .chart-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 2rem;
+        height: 100%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .chart-container:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .chart-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .insight-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .insight-card::after {
+        content: '💡';
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 4rem;
+        opacity: 0.2;
+    }
+
+    .stat-mini {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem;
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        margin-top: 1rem;
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-slide-up {
+        animation: slideInUp 0.6s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+
+    <!-- Header Section -->
+    <div class="dashboard-header text-white">
+        <div class="row align-items-center position-relative" style="z-index: 1;">
+            <div class="col-md-8">
+                <h1 class="fw-bold mb-2 display-5">📊 Dashboard Ejecutivo</h1>
+                <p class="mb-0 fs-5 opacity-90">Análisis completo de inventario y rendimiento de ventas</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="d-inline-block text-start">
+                    <h3 class="fw-bold mb-0" id="clock">00:00</h3>
+                    <small class="opacity-75" id="date">Cargando...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if has_data %}
+
+    <!-- Insights Section -->
+    <div class="insight-card animate__animated animate__fadeIn">
+        <h4 class="fw-bold mb-3">🎯 Insights Clave del Negocio</h4>
+        <div class="row">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-chart-line fs-3"></i>
+                    <div>
+                        <small class="opacity-75">Valor Total Inventario</small>
+                        <div class="fs-5 fw-bold">${{ total_inventario_valor|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-box-open fs-3"></i>
+                    <div>
+                        <small class="opacity-75">Productos Activos</small>
+                        <div class="fs-5 fw-bold">{{ total_productos_count }} items</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex align-items-center gap-2">
+                    {% if productos_bajo_stock_count > 0 %}
+                    <i class="fas fa-exclamation-circle fs-3"></i>
+                    <div>
+                        <small class="opacity-75">Alerta de Stock</small>
+                        <div class="fs-5 fw-bold">{{ productos_bajo_stock_count }} productos críticos</div>
+                    </div>
+                    {% else %}
+                    <i class="fas fa-check-circle fs-3"></i>
+                    <div>
+                        <small class="opacity-75">Estado Inventario</small>
+                        <div class="fs-5 fw-bold">Saludable ✓</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards Row -->
+    <div class="row g-4 mb-4">
+        <!-- Valor Inventario -->
+        <div class="col-xl-3 col-md-6 animate-slide-up" style="animation-delay: 0.1s;">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-success bg-opacity-10 text-success">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="kpi-label">Valor Total Inventario</div>
+                <div class="kpi-value text-success">${{ total_inventario_valor|floatformat:0 }}</div>
+                <div class="stat-mini">
+                    <i class="fas fa-info-circle text-muted"></i>
+                    <small class="text-muted">Capital invertido en stock</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Productos -->
+        <div class="col-xl-3 col-md-6 animate-slide-up" style="animation-delay: 0.2s;">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="kpi-label">Productos Registrados</div>
+                <div class="kpi-value text-primary">{{ total_productos_count }}</div>
+                <div class="stat-mini">
+                    <i class="fas fa-layer-group text-muted"></i>
+                    <small class="text-muted">SKUs en catálogo</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Bajo -->
+        <div class="col-xl-3 col-md-6 animate-slide-up" style="animation-delay: 0.3s;">
+            <div class="kpi-card" {% if productos_bajo_stock_count > 0 %}style="border-color: #dc3545;"{% endif %}>
+                <div
+                    class="kpi-icon {% if productos_bajo_stock_count > 0 %}bg-danger bg-opacity-10 text-danger{% else %}bg-success bg-opacity-10 text-success{% endif %}">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="kpi-label">Alertas de Stock</div>
+                <div
+                    class="kpi-value {% if productos_bajo_stock_count > 0 %}text-danger{% else %}text-success{% endif %}">
+                    {{ productos_bajo_stock_count }}
+                </div>
+                {% if productos_bajo_stock_count > 0 %}
+                <a href="{% url 'productos_list' %}" class="btn btn-sm btn-danger rounded-pill mt-2">
+                    <i class="fas fa-eye me-1"></i> Ver Productos
+                </a>
+                {% else %}
+                <div class="stat-mini">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <small class="text-success">Todo en orden</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Rotación -->
+        <div class="col-xl-3 col-md-6 animate-slide-up" style="animation-delay: 0.4s;">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-info bg-opacity-10 text-info">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <div class="kpi-label">Rotación de Inventario</div>
+                <div class="kpi-value text-info">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-mini">
+                    <i class="fas fa-info-circle text-muted"></i>
+                    <small class="text-muted">Análisis disponible abajo</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row g-4 mb-4">
+        <!-- Top Valor Inventario -->
+        <div class="col-lg-8 animate-slide-up" style="animation-delay: 0.5s;">
+            <div class="chart-container">
+                <h5 class="chart-title">
+                    <i class="fas fa-gem text-warning"></i>
+                    Top 5 Productos por Valor en Inventario
+                </h5>
+                <div style="position: relative; height: 320px;">
+                    <canvas id="inventoryValueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Métodos de Pago -->
+        <div class="col-lg-4 animate-slide-up" style="animation-delay: 0.6s;">
+            <div class="chart-container">
+                <h5 class="chart-title">
+                    <i class="fas fa-wallet text-success"></i>
+                    Métodos de Pago
+                </h5>
+                <div style="position: relative; height: 320px;">
+                    <canvas id="paymentMethodsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row g-4 mb-4">
+        <!-- Ventas Mensuales -->
+        <div class="col-lg-6 animate-slide-up" style="animation-delay: 0.7s;">
+            <div class="chart-container">
+                <h5 class="chart-title">
+                    <i class="fas fa-calendar-alt text-primary"></i>
+                    Tendencia de Ventas Mensuales
+                </h5>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="salesTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Productos Vendidos -->
+        <div class="col-lg-6 animate-slide-up" style="animation-delay: 0.8s;">
+            <div class="chart-container">
+                <h5 class="chart-title">
+                    <i class="fas fa-trophy text-warning"></i>
+                    Productos Más Vendidos
+                </h5>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="topSellingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5 chart-container animate__animated animate__fadeIn">
+        <div class="mb-4">
+            <i class="fas fa-chart-area fa-5x text-muted opacity-25"></i>
+        </div>
+        <h3 class="fw-bold mb-3">No hay datos disponibles</h3>
+        <p class="text-muted mb-4">Registra productos y ventas para ver el dashboard ejecutivo completo.</p>
+        <a href="{% url 'inicio' %}" class="btn btn-primary btn-lg rounded-pill px-5">
+            <i class="fas fa-home me-2"></i> Ir al Inicio
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% if has_data %}
+<script>
+    // Clock
+    function updateClock() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('clock').innerText = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('date').innerText = now.toLocaleDateString('es-ES', options);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Chart Theme Colors
+    function getThemeColors() {
+        const isLight = document.body.classList.contains('light-mode');
+        return {
+            textColor: isLight ? '#1f2937' : '#e2e8f0',
+            gridColor: isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)',
+            tooltipBg: isLight ? 'rgba(255, 255, 255, 0.98)' : 'rgba(20, 20, 30, 0.98)',
+            tooltipText: isLight ? '#1f2937' : '#ffffff'
+        };
+    }
+
+    // Data from Django
+    const dataInvValue = {
+        labels: {{ labels_inv|safe }},
+        data: {{ data_inv|safe }}
+    };
+    const dataPayment = {
+        labels: {{ labels_pago|safe }},
+        data: {{ data_pago|safe }}
+    };
+    const dataSales = {
+        labels: {{ labels_mes|safe }},
+        data: {{ data_mes|safe }}
+    };
+    const dataTopSell = {
+        labels: {{ labels_prod|safe }},
+        data: {{ data_prod|safe }}
+    };
+
+    let charts = {};
+
+    // Initialize all charts
+    function initCharts() {
+        const colors = getThemeColors();
+
+        // 1. Inventory Value Chart (Horizontal Bar)
+        if (document.getElementById('inventoryValueChart')) {
+            charts.invValue = new Chart(document.getElementById('inventoryValueChart'), {
+                type: 'bar',
+                data: {
+                    labels: dataInvValue.labels,
+                    datasets: [{
+                        label: 'Valor Total ($)',
+                        data: dataInvValue.data,
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(251, 191, 36, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ],
+                        borderRadius: 8,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: colors.tooltipBg,
+                            titleColor: colors.tooltipText,
+                            bodyColor: colors.tooltipText,
+                            borderColor: colors.gridColor,
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: (context) => ` $${context.parsed.x.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: colors.gridColor },
+                            ticks: { color: colors.textColor }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: colors.textColor }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Payment Methods (Doughnut)
+        if (document.getElementById('paymentMethodsChart')) {
+            charts.payment = new Chart(document.getElementById('paymentMethodsChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: dataPayment.labels,
+                    datasets: [{
+                        data: dataPayment.data,
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.9)',
+                            'rgba(16, 185, 129, 0.9)',
+                            'rgba(59, 130, 246, 0.9)'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 2000
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                color: colors.textColor,
+                                font: { size: 12, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: colors.tooltipBg,
+                            titleColor: colors.tooltipText,
+                            bodyColor: colors.tooltipText,
+                            callbacks: {
+                                label: (context) => ` ${context.label}: $${context.parsed.toFixed(2)}`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Sales Trend (Line Area)
+        if (document.getElementById('salesTrendChart')) {
+            const ctx = document.getElementById('salesTrendChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.3)');
+            gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
+            charts.sales = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataSales.labels,
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: dataSales.data,
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: 'rgb(99, 102, 241)',
+                        pointBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: colors.tooltipBg,
+                            titleColor: colors.tooltipText,
+                            bodyColor: colors.tooltipText,
+                            callbacks: {
+                                label: (context) => ` Ventas: $${context.parsed.y.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: colors.gridColor, borderDash: [5, 5] },
+                            ticks: { color: colors.textColor }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: colors.textColor }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 4. Top Selling (Bar)
+        if (document.getElementById('topSellingChart')) {
+            charts.topSell = new Chart(document.getElementById('topSellingChart'), {
+                type: 'bar',
+                data: {
+                    labels: dataTopSell.labels,
+                    datasets: [{
+                        label: 'Unidades Vendidas',
+                        data: dataTopSell.data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderRadius: 8,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: colors.tooltipBg,
+                            titleColor: colors.tooltipText,
+                            bodyColor: colors.tooltipText,
+                            callbacks: {
+                                label: (context) => ` ${context.parsed.y} unidades`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: colors.gridColor },
+                            ticks: { color: colors.textColor, precision: 0 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: colors.textColor }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function updateCharts() {
+        const colors = getThemeColors();
+        Chart.defaults.color = colors.textColor;
+        Chart.defaults.borderColor = colors.gridColor;
+
+        Object.values(charts).forEach(chart => {
+            if (chart.options.scales?.x) {
+                chart.options.scales.x.ticks.color = colors.textColor;
+                if (chart.options.scales.x.grid) chart.options.scales.x.grid.color = colors.gridColor;
+            }
+            if (chart.options.scales?.y) {
+                chart.options.scales.y.ticks.color = colors.textColor;
+                if (chart.options.scales.y.grid) chart.options.scales.y.grid.color = colors.gridColor;
+            }
+            if (chart.options.plugins?.legend) {
+                chart.options.plugins.legend.labels.color = colors.textColor;
+            }
+            chart.update();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initCharts);
+    document.addEventListener('themeChanged', updateCharts);
+</script>
+{% endif %}
+{% endblock %}

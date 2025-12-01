@@ -4,108 +4,52 @@
 
 {% block content %}
 
-<div class="container-fluid px-0">
+<div class="container-fluid">
 
-  <!-- Header Section - Liquid Glass -->
-  <div class="liquid-glass-header glass-header-compact mb-4">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center">
-        <h1 class="h4 mb-0 text-light fw-bold">
-          <i class="fas fa-receipt text-primary me-2"></i> Factura #{{ venta.factura_num }}
-        </h1>
-        <a href="{% url 'ventas_list' %}" class="btn btn-outline-light btn-sm">
-          <i class="fas fa-arrow-left me-1"></i> Volver
-        </a>
-      </div>
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-main mb-0">
+      <i class="fas fa-receipt me-2 text-primary"></i> Factura #{{ venta.factura_num }}
+    </h3>
+    <div class="d-flex gap-2">
+      <a href="{% url 'ventas_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      </a>
+      <a href="{% url 'ventas_factura_pdf_rl' venta.pk %}" target="_blank" class="btn btn-success btn-sm">
+        <i class="fas fa-file-pdf me-1"></i> Descargar PDF
+      </a>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="container">
-
-  <!-- Card de Factura -->
-  <div class="liquid-glass-card shadow-lg rounded-4">
-    <div class="card-header-modern text-center p-3">
-      <h3 class="mb-1 text-light"><i class="fas fa-receipt icon-primary me-2"></i> Factura #{{ venta.factura_num }}</h3>
-      <small class="text-gray">{{ venta.fecha|date:"d/m/Y H:i" }}</small>
-    </div>
-    <div class="p-4">
-
-      <!-- Información de Cliente y Vendedor -->
-      <div class="row mb-4">
-        <div class="col-md-6">
-          <h5 class="fw-bold"><i class="fas fa-user me-1"></i> Cliente:</h5>
-          <p>{{ venta.cliente.nombre }}<br>{{ venta.cliente.correo }}</p>
+  <!-- Detalle de la Venta -->
+  <div class="glass-card p-4 rounded-4">
+    <div class="row">
+      <div class="col-md-6">
+        <h5 class="text-main mb-3">Información de la Venta</h5>
+        <div class="mb-2">
+          <small class="text-muted">Cliente:</small>
+          <div class="text-main fw-bold">{{ venta.cliente.nombre }}</div>
         </div>
-        <div class="col-md-6 text-md-end">
-          <h5 class="fw-bold"><i class="fas fa-user-tie me-1"></i> Vendedor:</h5>
-          <p>{{ venta.vendedor.username }}</p>
+        <div class="mb-2">
+          <small class="text-muted">Vendedor:</small>
+          <div class="text-main">{{ venta.vendedor.username }}</div>
+        </div>
+        <div class="mb-2">
+          <small class="text-muted">Fecha:</small>
+          <div class="text-main">{{ venta.fecha|date:"d/m/Y H:i" }}</div>
+        </div>
+        <div class="mb-2">
+          <small class="text-muted">Método de Pago:</small>
+          <div class="text-main">{{ venta.metodo_pago }}</div>
         </div>
       </div>
-
-      <!-- Tabla de Productos -->
-      <div class="table-responsive mb-4">
-  <table class="table table-hover align-middle">
-    <thead class="table-primary text-center">
-      <tr>
-        <th>Producto</th>
-        <th>Cantidad</th>
-        <th>Precio Unitario</th>
-        <th>Subtotal</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in venta.items.all %}
-      <tr class="text-center">
-        <td>{{ item.producto.nombre }}</td>
-        <td>{{ item.cantidad }}</td>
-        <td class="text-success fw-bold">${{ item.precio_unitario }}</td>
-        <td class="text-success fw-bold">${{ item.subtotal }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="4" class="text-center">No hay productos en esta venta.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-      <!-- Totales -->
-      <div class="d-flex justify-content-end flex-column align-items-end">
-        <p class="mb-1 fw-semibold">Método de pago: <span class="text-primary">{{ venta.metodo_pago }}</span></p>
-        <h5 class="fw-bold">Total: <span class="text-success">${{ venta.total }}</span></h5>
+      <div class="col-md-6 text-end">
+        <h5 class="text-main mb-3">Total</h5>
+        <h2 class="text-success fw-bold">${{ venta.total }}</h2>
       </div>
-
-      <!-- Botones de acción -->
-      <div class="mt-4 d-flex justify-content-between">
-        <a href="{% url 'ventas_historial' %}" class="btn btn-outline-secondary rounded-3 px-4">
-          <i class="fas fa-arrow-left me-1"></i> Historial
-        </a>
-        <a href="{% url 'ventas_factura_pdf_rl' venta.pk %}" target="_blank" class="btn btn-success rounded-3 px-4">
-          <i class="fas fa-file-pdf me-1"></i> Descargar PDF
-        </a>
-      </div>
-
     </div>
   </div>
-  </div>
+
 </div>
-
-<!-- Librerías -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<style>
-body { background-color: #f6f8fa; }
-
-.card { border: none; border-radius: 15px; }
-
-.table-hover>tbody>tr:hover { background-color: rgba(0,123,255,0.05); }
-
-h3, h5 { font-family: 'Poppins', sans-serif; }
-
-.btn { transition: all 0.2s ease; }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
-.text-success { font-weight: 600; }
-</style>
 
 {% endblock %}

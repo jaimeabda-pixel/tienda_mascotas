@@ -1,0 +1,192 @@
+/* style_pro.css - Consolidado y Optimizado */
+
+/* ========== Variables ========== */
+:root {
+    /* --primary: #4e73df;  Descomenta o ajusta si es necesario */
+    /* --secondary: #1cc88a; Descomenta o ajusta si es necesario */
+    --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+    /* Colores base para el efecto vidrio en fondos oscuros */
+    --glass-bg: rgba(255, 255, 255, 0.06); /* Fondo del vidrio más transparente */
+    --glass-border: rgba(255, 255, 255, 0.2); /* Borde blanco sutil */
+    --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); /* Sombra más oscura y pronunciada */
+    --blur-amount: 25px; /* Aumenta el desenfoque para un efecto más notorio */
+    /* Nuevo: Color de fondo general oscuro con un ligero tinte azulado/morado */
+    --body-bg-start: #0a0a1a; /* Casi negro con un tinte oscuro */
+    --body-bg-end: #1c1c3a; /* Un poco más claro */
+}
+
+/* ========== Body ========== */
+body {
+    font-family: 'Poppins', sans-serif !important;
+    /* Fondo oscuro con gradiente para que el efecto de vidrio destaque */
+    background: radial-gradient(circle at top right, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    color: #e0e0e0; /* Color de texto por defecto */
+}
+
+/* ========== Elementos con efecto Vidrio (Glassmorphism) ========== */
+/* Aplica a Navbar, Tarjetas, Formularios, Tablas y Footer */
+.glass-effect,
+.navbar,
+.glass-card,
+.form-control-glass,
+.form-select-glass,
+.table-glass,
+.dataTables_wrapper,
+.dropdown-menu,
+footer,
+.card,
+.form-container,
+.modal-content,
+.content-box {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(var(--blur-amount)); /* Aplica el blur al fondo del elemento */
+    -webkit-backdrop-filter: blur(var(--blur-amount)); /* Compatibilidad con navegadores WebKit */
+    border-radius: 12px; /* Radio de borde ligeramente menor para las tarjetas */
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow);
+    color: #fff !important;
+}
+
+.navbar {
+    border-radius: 0; /* Navbar sin bordes redondeados en los extremos */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.dataTables_wrapper {
+    padding: 1rem;
+}
+
+/* ========== Tipografía y Enlaces ========== */
+.navbar-brand span {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.nav-link {
+    color: #fff !important;
+    transition: 0.3s;
+}
+
+.nav-link:hover {
+    color: #fff !important;
+    text-shadow: 0 0 5px rgba(255,255,255,0.7);
+}
+
+/* ========== Logo ========== */
+.navbar-brand img {
+    height: 45px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+/* ========== Botones ========== */
+.btn-gradient, .btn-filter {
+    background: var(--gradient);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover, .btn-filter:hover {
+    opacity: 0.9;
+    transform: scale(1.03);
+}
+
+/* Botones de acción específicos (Ventas / Clientes) */
+.btn-accion {
+    border: none;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.btn-ver { background-color: #3498db !important; color: #fff !important; }
+.btn-ver:hover { background-color: #2980b9 !important; }
+.btn-pdf { background-color: #e74c3c !important; color: #fff !important; }
+.btn-pdf:hover { background-color: #c0392b !important; }
+.btn-eliminar { background-color: #c0392b !important; color: #fff !important; }
+.btn-eliminar:hover { background-color: #a93226 !important; }
+
+/* ========== Formularios ========== */
+.form-control-glass, .form-select-glass, .form-control,
+input.form-control, select.form-control, textarea.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 10px;
+    color: #fff;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s;
+}
+
+.form-control-glass:focus, .form-select-glass:focus, .form-control:focus {
+    background: rgba(255,255,255,0.25);
+    border-color: var(--secondary);
+    box-shadow: 0 0 5px var(--secondary);
+    color: #fff;
+}
+
+/* Inputs dentro de contenedores específicos */
+.ventas-container .dataTables_wrapper input,
+.ventas-container .dataTables_wrapper select,
+.clientes-container .dataTables_wrapper input,
+.clientes-container .dataTables_wrapper select {
+    background: rgba(255,255,255,0.1) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 8px !important;
+}
+/* --- Asegurar variables base (descomentar si estaban comentadas) --- */
+:root {
+    --primary: #4e73df;
+    --secondary: #1cc88a;
+}
+
+/* --- Forzar que modals siempre estén por encima --- */
+.modal {
+  z-index: 2050 !important; /* Bootstrap usa 1050, subimos para asegurar */
+  position: fixed !important;
+}
+
+/* Backdrop detrás del modal pero encima del resto */
+.modal-backdrop {
+  z-index: 2000 !important;
+}
+
+/* Si tienes pseudo-elementos brillantes que pueden tapar el modal: */
+.card::before, .form-container::before, .modal-content::before {
+  z-index: 0;            /* mantenerlos por debajo */
+  pointer-events: none;  /* ya lo tenías, importante */
+}
+
+/* Si cualquier contenedor principal tiene overflow que recorta */
+.main-sales-container,
+.container, .content-box {
+  overflow: visible !important; /* evita que modals se corten */
+}
+
+/* Si quieres mantener el comportamiento de no-scroll pero permitir que el modal se muestre sin problema,
+   usa esta variante en lugar de cambiar el overflow del contenedor general. */
+.main-sales-container {
+  height: calc(100vh - 120px);
+  max-height: calc(100vh - 120px);
+  /* no overflow:hidden aquí para evitar recortes; si quieres evitar scroll, controla el contenido interno */
+  overflow: visible; 
+}
+
+/* Si tus tarjetas usan transform/translate, esto crea un nuevo stacking context que puede afectar al modal.
+   Asegúrate de no aplicar transform/opacity/position z-index innecesarios en contenedores padres. */
+.card, .glass-card {
+  position: relative;
+  z-index: 1; /* mantener bajo para permitir que .modal (z-index alto) lo supere */
+}

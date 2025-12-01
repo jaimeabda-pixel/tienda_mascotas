@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'widget_tweaks',
     'tienda',
     "django_extensions"
@@ -143,4 +144,3 @@ LOGIN_REDIRECT_URL = '/'  # opcional, a donde va después de loguear
 LOGOUT_REDIRECT_URL = '/login/'
 AUTH_USER_MODEL = 'tienda.Vendedor'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-

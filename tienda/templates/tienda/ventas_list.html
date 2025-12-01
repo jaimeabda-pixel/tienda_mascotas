@@ -1,464 +1,338 @@
 {% extends 'tienda/base.html' %}
-{% block title %}Ventas{% endblock %}
+{% load humanize %}
+
+{% block title %}Historial de Ventas{% endblock %}
 
 {% block content %}
-<div class="ventas-container p-4">
+<div class="container-fluid px-4 py-4">
 
-  <!-- Encabezado con título y botón -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- Header & Actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeInDown">
     <div>
-      <h2 class="text-light mb-0">
-        <i class="fa-solid fa-receipt me-2" style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i> 
-        Historial de Ventas
-      </h2>
-      <p class="text-secondary mt-1">Gestiona y supervisa todas tus transacciones</p>
+      <h2 class="fw-bold text-main mb-1">Historial de Ventas</h2>
+      <p class="text-muted mb-0">Gestiona y visualiza todas las transacciones</p>
     </div>
-    <a href="{% url 'ventas_create' %}" class="btn btn-gradient shadow-lg px-4 py-2" style="background: linear-gradient(135deg, #667eea, #764ba2); border: none; font-weight: 600;">
-      <i class="fa-solid fa-plus me-2"></i> Nueva Venta
+    <a href="{% url 'ventas_create' %}" class="btn btn-primary btn-lg shadow-lg d-flex align-items-center gap-2"
+      style="border-radius: 50px; padding: 0.8rem 1.5rem;">
+      <i class="fas fa-plus-circle"></i>
+      <span>Nueva Venta</span>
     </a>
   </div>
 
-  <!-- Buscador en tiempo real -->
-  <div class="search-section mb-4">
-    <div class="input-group input-group-lg">
-      <span class="input-group-text" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);">
-        <i class="fa-solid fa-magnifying-glass"></i>
-      </span>
-      <input type="text" id="filtroVentas" class="form-control" placeholder="Buscar por cliente, vendedor o número de venta..." 
-             style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 12px 18px; font-weight: 500;">
-    </div>
-  </div>
-
-  <!-- Grid de ventas o tabla según resolución -->
-  <div id="ventasGrid" class="ventas-grid">
-    {% for venta in ventas %}
-    <div class="venta-card glass-card animate__animated animate__fadeInUp" data-cliente="{{ venta.cliente.nombre|lower }}" data-vendedor="{{ venta.vendedor.username|lower }}" data-venta="{{ venta.pk }}">
-      
-      <!-- Header de la tarjeta -->
-      <div class="venta-header">
-        <div class="venta-info">
-          <h5 class="venta-cliente">
-            <i class="fa-solid fa-user-circle me-2"></i>
-            {{ venta.cliente.nombre }}
-          </h5>
-          <p class="text-secondary mb-0">
-            <i class="fa-solid fa-calendar-days me-1"></i>
-            {{ venta.fecha|date:"d/m/Y" }} - {{ venta.fecha|time:"H:i" }}
-          </p>
+  <!-- Stats Cards -->
+  <div class="row g-4 mb-5 animate__animated animate__fadeInUp">
+    <!-- Total Ventas -->
+    <div class="col-md-3">
+      <div class="glass-card p-4 h-100 position-relative overflow-hidden">
+        <div class="position-absolute top-0 end-0 p-3 opacity-10">
+          <i class="fas fa-shopping-bag fa-4x text-primary"></i>
         </div>
-        <div class="venta-total">
-          <span class="total-amount">${{ venta.total|floatformat:0 }}</span>
+        <div class="d-flex flex-column position-relative z-1">
+          <span class="text-muted text-uppercase small fw-bold mb-2">Total Ventas</span>
+          <h3 class="text-main fw-bold mb-0">{{ total_ventas_count }}</h3>
+          <span class="text-success small mt-2"><i class="fas fa-arrow-up me-1"></i>Histórico</span>
         </div>
       </div>
+    </div>
 
-      <!-- Detalles de la venta -->
-      <div class="venta-details mt-3">
-        <div class="detail-item mb-2">
-          <label class="text-secondary small">Vendedor</label>
-          <p class="text-light fw-600">{{ venta.vendedor.username }}</p>
+    <!-- Ingresos Totales -->
+    <div class="col-md-3">
+      <div class="glass-card p-4 h-100 position-relative overflow-hidden">
+        <div class="position-absolute top-0 end-0 p-3 opacity-10">
+          <i class="fas fa-wallet fa-4x text-success"></i>
         </div>
-
-        {% if venta.items.all %}
-        <div class="detail-item mb-2">
-          <label class="text-secondary small">Productos ({{ venta.items.all.count }})</label>
-          <div class="productos-list">
-            {% for item in venta.items.all %}
-            <span class="badge-producto">
-              <i class="fa-solid fa-box me-1"></i>
-              {{ item.producto.nombre }} <span class="badge-qty">x{{ item.cantidad }}</span>
-            </span>
-            {% endfor %}
-          </div>
+        <div class="d-flex flex-column position-relative z-1">
+          <span class="text-muted text-uppercase small fw-bold mb-2">Ingresos Totales</span>
+          <h3 class="text-main fw-bold mb-0"
+            style="background: linear-gradient(to right, var(--success), #2bdaca); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+            ${{ total_ingresos|floatformat:0|intcomma }}
+          </h3>
+          <span class="text-success small mt-2"><i class="fas fa-chart-line me-1"></i>Acumulado</span>
         </div>
-        {% endif %}
+      </div>
+    </div>
 
-        <!-- Método de pago -->
-        <div class="detail-item mb-3">
-          <label class="text-secondary small">Método de Pago</label>
-          <span class="badge-pago {% if venta.metodo_pago == 'Efectivo' %}efectivo{% else %}tarjeta{% endif %}">
-            <i class="fa-solid {% if venta.metodo_pago == 'Efectivo' %}fa-money-bill-1{% else %}fa-credit-card{% endif %} me-1"></i>
-            {{ venta.metodo_pago }}
+    <!-- Ventas Hoy -->
+    <div class="col-md-3">
+      <div class="glass-card p-4 h-100 position-relative overflow-hidden">
+        <div class="position-absolute top-0 end-0 p-3 opacity-10">
+          <i class="fas fa-calendar-day fa-4x text-info"></i>
+        </div>
+        <div class="d-flex flex-column position-relative z-1">
+          <span class="text-muted text-uppercase small fw-bold mb-2">Ventas Hoy</span>
+          <h3 class="text-main fw-bold mb-0">{{ ventas_hoy_count }}</h3>
+          <span class="text-info small mt-2">
+            {% if ventas_hoy_count > 0 %}
+            <i class="fas fa-check-circle me-1"></i>Actividad reciente
+            {% else %}
+            <i class="fas fa-clock me-1"></i>Esperando ventas
+            {% endif %}
           </span>
         </div>
+      </div>
+    </div>
 
-        <!-- Botones de acción -->
-        <div class="venta-actions">
-          <a href="{% url 'ventas_detalle' venta.pk %}" class="btn btn-action btn-ver" title="Ver Detalle">
-            <i class="fa-solid fa-eye"></i> Ver
-          </a>
-          <a href="{% url 'ventas_factura_pdf_rl' venta.pk %}" class="btn btn-action btn-pdf" target="_blank" title="Descargar PDF">
-            <i class="fa-solid fa-file-pdf"></i> PDF
-          </a>
-          <a href="{% url 'ventas_delete' venta.pk %}" class="btn btn-action btn-eliminar" title="Eliminar" onclick="return confirm('¿Eliminar esta venta?');">
-            <i class="fa-solid fa-trash"></i> Eliminar
-          </a>
+    <!-- Ingresos Hoy -->
+    <div class="col-md-3">
+      <div class="glass-card p-4 h-100 position-relative overflow-hidden">
+        <div class="position-absolute top-0 end-0 p-3 opacity-10">
+          <i class="fas fa-coins fa-4x text-warning"></i>
+        </div>
+        <div class="d-flex flex-column position-relative z-1">
+          <span class="text-muted text-uppercase small fw-bold mb-2">Ingresos Hoy</span>
+          <h3 class="text-main fw-bold mb-0 text-warning">
+            ${{ ingresos_hoy|floatformat:0|intcomma }}
+          </h3>
+          <span class="text-warning small mt-2"><i class="fas fa-bolt me-1"></i>Hoy</span>
         </div>
       </div>
     </div>
-    {% empty %}
-    <div class="empty-state">
-      <i class="fa-solid fa-inbox"></i>
-      <h4 class="text-light mt-3">Sin ventas registradas</h4>
-      <p class="text-secondary">Comienza a registrar ventas para verlas aquí</p>
-      <a href="{% url 'ventas_create' %}" class="btn btn-gradient mt-3">
-        <i class="fa-solid fa-plus me-1"></i> Registrar Primera Venta
-      </a>
-    </div>
-    {% endfor %}
   </div>
 
-  <!-- Mensaje cuando no hay resultados en búsqueda -->
-  <div id="sinResultados" class="empty-state" style="display: none;">
-    <i class="fa-solid fa-search"></i>
-    <h4 class="text-light mt-3">Sin resultados</h4>
-    <p class="text-secondary">No se encontraron ventas que coincidan con tu búsqueda</p>
+  <!-- Search & Filter -->
+  <div class="row mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+    <div class="col-12">
+      <div class="glass-effect p-2 rounded-pill d-flex align-items-center ps-4 pe-2 shadow-sm"
+        style="border: 1px solid var(--border-color);">
+        <i class="fas fa-search text-muted me-3"></i>
+        <input type="text" id="filtroVentas" class="form-control bg-transparent border-0 text-main shadow-none"
+          placeholder="Buscar por cliente, vendedor, ID..." style="font-size: 1.1rem;">
+        <div class="dropdown">
+          <button class="btn btn-dark rounded-pill px-4" type="button">
+            <i class="fas fa-filter me-2"></i>Filtrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales Table -->
+  <div class="glass-card rounded-4 overflow-hidden shadow-lg animate__animated animate__fadeInUp"
+    style="animation-delay: 0.2s;">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0;">
+        <thead class="bg-light bg-opacity-10">
+          <tr>
+            <th
+              class="ps-4 py-3 text-uppercase small fw-bold text-muted border-bottom border-secondary border-opacity-10">
+              ID</th>
+            <th class="py-3 text-uppercase small fw-bold text-muted border-bottom border-secondary border-opacity-10">
+              Cliente</th>
+            <th class="py-3 text-uppercase small fw-bold text-muted border-bottom border-secondary border-opacity-10">
+              Fecha</th>
+            <th class="py-3 text-uppercase small fw-bold text-muted border-bottom border-secondary border-opacity-10">
+              Vendedor</th>
+            <th class="py-3 text-uppercase small fw-bold text-muted border-bottom border-secondary border-opacity-10">
+              Productos</th>
+            <th class="py-3 text-uppercase small fw-bold text-muted border-bottom border-secondary border-opacity-10">
+              Pago</th>
+            <th
+              class="text-end py-3 text-uppercase small fw-bold text-muted border-bottom border-secondary border-opacity-10">
+              Total</th>
+            <th
+              class="text-end pe-4 py-3 text-uppercase small fw-bold text-muted border-bottom border-secondary border-opacity-10">
+              Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="ventasBody">
+          {% for venta in ventas %}
+          <tr class="venta-row transition-hover" data-cliente="{{ venta.cliente.nombre|lower }}"
+            data-vendedor="{{ venta.vendedor.username|lower }}" data-id="{{ venta.pk }}">
+
+            <td class="ps-4 py-3 border-bottom border-secondary border-opacity-10">
+              <span class="badge bg-secondary bg-opacity-10 text-main fw-normal font-monospace">#{{ venta.pk }}</span>
+            </td>
+
+            <td class="py-3 border-bottom border-secondary border-opacity-10">
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle me-3 bg-gradient-primary text-white shadow-sm">
+                  {{ venta.cliente.nombre|first|upper }}
+                </div>
+                <div>
+                  <div class="fw-bold text-main">{{ venta.cliente.nombre }}</div>
+                  <div class="small text-muted">Cliente Frecuente</div>
+                </div>
+              </div>
+            </td>
+
+            <td class="py-3 border-bottom border-secondary border-opacity-10">
+              <div class="d-flex flex-column">
+                <span class="fw-medium text-main">{{ venta.fecha|date:"d M, Y" }}</span>
+                <span class="small text-muted">{{ venta.fecha|time:"H:i" }}</span>
+              </div>
+            </td>
+
+            <td class="py-3 border-bottom border-secondary border-opacity-10">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-user-tie text-muted"></i>
+                <span class="text-muted">{{ venta.vendedor.username|title }}</span>
+              </div>
+            </td>
+
+            <td class="py-3 border-bottom border-secondary border-opacity-10">
+              <div class="d-flex flex-wrap gap-1" style="max-width: 200px;">
+                {% for item in venta.items.all|slice:":2" %}
+                <span
+                  class="badge bg-secondary bg-opacity-10 text-muted border border-secondary border-opacity-10 fw-normal">
+                  {{ item.producto.nombre|truncatechars:15 }} <span class="text-main">x{{ item.cantidad }}</span>
+                </span>
+                {% endfor %}
+                {% if venta.items.all.count > 2 %}
+                <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25">
+                  +{{ venta.items.all.count|add:"-2" }} más
+                </span>
+                {% endif %}
+              </div>
+            </td>
+
+            <td class="py-3 border-bottom border-secondary border-opacity-10">
+              {% if venta.metodo_pago|lower == 'efectivo' %}
+              <span
+                class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
+                <i class="fas fa-money-bill-wave me-1"></i> Efectivo
+              </span>
+              {% elif venta.metodo_pago|lower == 'tarjeta' %}
+              <span
+                class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25 px-3 py-2 rounded-pill">
+                <i class="fas fa-credit-card me-1"></i> Tarjeta
+              </span>
+              {% else %}
+              <span
+                class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-25 px-3 py-2 rounded-pill">
+                {{ venta.metodo_pago|default:"Otro" }}
+              </span>
+              {% endif %}
+            </td>
+
+            <td class="text-end py-3 border-bottom border-secondary border-opacity-10">
+              <span class="fw-bold fs-5"
+                style="background: linear-gradient(135deg, var(--text-main) 0%, var(--primary) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                ${{ venta.total|floatformat:0|intcomma }}
+              </span>
+            </td>
+
+            <td class="text-end pe-4 py-3 border-bottom border-secondary border-opacity-10">
+              <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'ventas_detalle' venta.pk %}" class="btn btn-icon btn-sm btn-glass text-primary"
+                  title="Ver Detalle">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a href="{% url 'ventas_factura_pdf_rl' venta.pk %}" class="btn btn-icon btn-sm btn-glass text-danger"
+                  target="_blank" title="Descargar PDF">
+                  <i class="fas fa-file-pdf"></i>
+                </a>
+                <a href="{% url 'ventas_delete' venta.pk %}" class="btn btn-icon btn-sm btn-glass text-secondary"
+                  onclick="return confirm('¿Estás seguro de eliminar esta venta? Esta acción restaurará el stock.');"
+                  title="Eliminar">
+                  <i class="fas fa-trash-alt"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <div class="d-flex flex-column align-items-center justify-content-center opacity-50">
+                <i class="fas fa-receipt fa-4x mb-3 text-muted"></i>
+                <h5 class="text-muted">No hay ventas registradas</h5>
+                <p class="text-muted">Comienza creando una nueva venta.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- No Results State -->
+  <div id="sinResultados" class="text-center py-5 d-none">
+    <div class="glass-card d-inline-block p-5 rounded-circle mb-3">
+      <i class="fas fa-search fa-3x text-muted"></i>
+    </div>
+    <h4 class="text-main">No se encontraron resultados</h4>
+    <p class="text-muted">Intenta con otros términos de búsqueda.</p>
   </div>
 
 </div>
 
 <style>
-/* === CONTENEDOR PRINCIPAL === */
-.ventas-container {
-  background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
-  min-height: 100vh;
-  border-radius: 20px;
-}
-
-/* === BUSCADOR === */
-.search-section {
-  animation: slideDown 0.5s ease-out;
-}
-
-.search-section .input-group-text {
-  border-radius: 12px 0 0 12px !important;
-  background: rgba(255,255,255,0.08) !important;
-}
-
-.search-section .form-control {
-  border-radius: 0 12px 12px 0 !important;
-  background: rgba(255,255,255,0.08) !important;
-  border: 1px solid rgba(255,255,255,0.15) !important;
-  transition: all 0.3s ease;
-}
-
-.search-section .form-control:focus {
-  background: rgba(255,255,255,0.12) !important;
-  border-color: rgba(102,126,234,0.5) !important;
-  box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.15) !important;
-}
-
-/* === GRID DE VENTAS === */
-.ventas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-  animation: fadeInUp 0.6s ease-out;
-}
-
-/* === TARJETA DE VENTA === */
-.venta-card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
-  padding: 1.5rem;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
-.venta-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-  transition: left 0.5s;
-}
-
-.venta-card:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(102,126,234,0.3);
-  box-shadow: 0 15px 40px rgba(102,126,234,0.15);
-  transform: translateY(-8px);
-}
-
-.venta-card:hover::before {
-  left: 100%;
-}
-
-/* Header de tarjeta */
-.venta-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-}
-
-.venta-cliente {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #fff;
-  margin: 0;
-  margin-bottom: 0.25rem;
-}
-
-.venta-total {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.total-amount {
-  font-size: 1.8rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Detalles */
-.venta-details {
-  flex-grow: 1;
-}
-
-.detail-item label {
-  display: block;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.25rem;
-  color: rgba(255,255,255,0.6);
-}
-
-.detail-item p {
-  margin: 0;
-  color: #fff;
-}
-
-/* Lista de productos */
-.productos-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.badge-producto {
-  display: inline-block;
-  background: rgba(102,126,234,0.15);
-  color: rgba(102,126,234,0.9);
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  border: 1px solid rgba(102,126,234,0.3);
-  font-weight: 500;
-}
-
-.badge-qty {
-  background: rgba(102,126,234,0.3);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 700;
-  margin-left: 0.3rem;
-}
-
-/* Badge de pago */
-.badge-pago {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
-}
-
-.badge-pago.efectivo {
-  background: rgba(76,175,80,0.2);
-  color: #4caf50;
-  border: 1px solid rgba(76,175,80,0.3);
-}
-
-.badge-pago.tarjeta {
-  background: rgba(33,150,243,0.2);
-  color: #2196f3;
-  border: 1px solid rgba(33,150,243,0.3);
-}
-
-/* Botones de acción */
-.venta-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255,255,255,0.1);
-}
-
-.btn-action {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.btn-ver {
-  background: rgba(52,152,219,0.15);
-  color: #3498db;
-  border: 1px solid rgba(52,152,219,0.3);
-}
-
-.btn-ver:hover {
-  background: rgba(52,152,219,0.3);
-  color: #fff;
-  transform: scale(1.05);
-}
-
-.btn-pdf {
-  background: rgba(231,76,60,0.15);
-  color: #e74c3c;
-  border: 1px solid rgba(231,76,60,0.3);
-}
-
-.btn-pdf:hover {
-  background: rgba(231,76,60,0.3);
-  color: #fff;
-  transform: scale(1.05);
-}
-
-.btn-eliminar {
-  background: rgba(192,57,43,0.15);
-  color: #c0392b;
-  border: 1px solid rgba(192,57,43,0.3);
-}
-
-.btn-eliminar:hover {
-  background: rgba(192,57,43,0.3);
-  color: #fff;
-  transform: scale(1.05);
-}
-
-/* Estado vacío */
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: #fff;
-}
-
-.empty-state i {
-  font-size: 4rem;
-  color: rgba(255,255,255,0.2);
-  margin-bottom: 1rem;
-}
-
-.empty-state h4 {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-/* === ANIMACIONES === */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .ventas-grid {
-    grid-template-columns: 1fr;
+  /* Custom Styles for this page */
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   }
 
-  .venta-card {
-    padding: 1.25rem;
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   }
 
-  .total-amount {
-    font-size: 1.5rem;
+  .transition-hover {
+    transition: all 0.2s ease;
   }
 
-  .venta-header {
-    flex-direction: column;
+  .transition-hover:hover {
+    background: var(--bg-surface-hover);
+    transform: translateY(-1px);
   }
 
-  .venta-total {
-    margin-top: 0.75rem;
-    align-items: flex-start;
+  .btn-glass {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
   }
 
-  .venta-actions {
-    flex-direction: column;
+  .btn-glass:hover {
+    background: var(--bg-surface-hover);
+    transform: scale(1.1);
   }
-
-  .btn-action {
-    width: 100%;
-  }
-}
 </style>
 
-<!-- JavaScript para búsqueda en tiempo real -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const filtro = document.getElementById('filtroVentas');
-  const cards = document.querySelectorAll('.venta-card');
-  const sinResultados = document.getElementById('sinResultados');
+  document.addEventListener('DOMContentLoaded', function () {
+    const filtro = document.getElementById('filtroVentas');
+    const rows = document.querySelectorAll('.venta-row');
+    const sinResultados = document.getElementById('sinResultados');
+    const tablaContainer = document.querySelector('.table-responsive').parentElement;
 
-  filtro.addEventListener('keyup', function() {
-    const busqueda = this.value.toLowerCase();
-    let contadorVisibles = 0;
+    filtro.addEventListener('keyup', function () {
+      const busqueda = this.value.toLowerCase();
+      let visibles = 0;
 
-    cards.forEach(card => {
-      const cliente = card.getAttribute('data-cliente');
-      const vendedor = card.getAttribute('data-vendedor');
-      const venta = card.getAttribute('data-venta');
+      rows.forEach(row => {
+        const cliente = row.getAttribute('data-cliente') || '';
+        const vendedor = row.getAttribute('data-vendedor') || '';
+        const id = row.getAttribute('data-id') || '';
 
-      if (cliente.includes(busqueda) || vendedor.includes(busqueda) || venta.includes(busqueda)) {
-        card.style.display = 'block';
-        card.classList.add('animate__animated', 'animate__fadeIn');
-        contadorVisibles++;
+        if (cliente.includes(busqueda) || vendedor.includes(busqueda) || id.includes(busqueda)) {
+          row.style.display = '';
+          visibles++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      if (visibles === 0 && busqueda.length > 0) {
+        tablaContainer.classList.add('d-none');
+        sinResultados.classList.remove('d-none');
       } else {
-        card.style.display = 'none';
+        tablaContainer.classList.remove('d-none');
+        sinResultados.classList.add('d-none');
       }
     });
-
-    if (contadorVisibles === 0 && busqueda.length > 0) {
-      sinResultados.style.display = 'block';
-    } else {
-      sinResultados.style.display = 'none';
-    }
   });
-});
 </script>
-
 {% endblock %}

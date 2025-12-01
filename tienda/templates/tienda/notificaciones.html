@@ -1,0 +1,53 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}Notificaciones{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card rounded-4 p-5 shadow-lg position-relative overflow-hidden">
+
+            <div class="position-absolute top-0 start-0 w-100 h-100"
+                style="background: radial-gradient(circle at 10% 90%, rgba(255,255,255,0.05) 0%, transparent 50%); pointer-events: none;">
+            </div>
+
+            <h2 class="fw-bold text-main mb-4"><i class="fas fa-bell me-2 text-warning"></i> Notificaciones</h2>
+
+            <div class="list-group list-group-flush rounded-3 overflow-hidden">
+                <!-- Placeholder Notifications -->
+                <div class="list-group-item glass-card border-secondary border-opacity-25 p-4 mb-2 rounded-3">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 text-main">Bienvenido al sistema</h5>
+                        <small class="text-muted">Hace 1 día</small>
+                    </div>
+                    <p class="mb-1 text-muted">Gracias por registrarte en Tienda Mascotas. Explora todas las
+                        funcionalidades disponibles.</p>
+                    <small class="text-primary">Sistema</small>
+                </div>
+
+                <div class="list-group-item glass-card border-secondary border-opacity-25 p-4 mb-2 rounded-3">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 text-main">Actualización de Stock</h5>
+                        <small class="text-muted">Hace 3 días</small>
+                    </div>
+                    <p class="mb-1 text-muted">Se han actualizado los niveles de stock para la categoría Alimentos.
+                    </p>
+                    <small class="text-info">Inventario</small>
+                </div>
+
+                <div class="text-center py-5">
+                    <p class="text-muted fst-italic">No hay más notificaciones recientes.</p>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a href="{% url 'inicio' %}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">
+                    <i class="fas fa-arrow-left me-2"></i> Volver al Inicio
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

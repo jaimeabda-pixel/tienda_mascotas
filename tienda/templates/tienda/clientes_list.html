@@ -8,93 +8,92 @@
 
   <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-white mb-0">
+    <h3 class="fw-bold mb-0" style="color: var(--text-main, #212529);">
       <i class="fas fa-users me-2 text-primary"></i> Clientes
     </h3>
     <a href="{% url 'clientes_create' %}" class="btn btn-primary shadow-sm">
-      <i class="fas fa-user-plus me-2"></i> Nuevo
+      <i class="fas fa-user-plus me-2"></i> Nuevo Cliente
     </a>
   </div>
 
   <!-- Buscador -->
   <div class="row mb-4">
-    <div class="col-12">
-      <div class="glass-effect p-3 rounded-4">
-        <div class="input-group input-group-lg">
-          <span class="input-group-text bg-transparent border-0 text-light">
+    <div class="col-lg-6 col-md-8">
+      <div class="glass-effect p-2 rounded-3">
+        <div class="input-group">
+          <span class="input-group-text bg-transparent border-0" style="color: var(--text-muted, #6c757d);">
             <i class="fas fa-search"></i>
           </span>
-          <input type="text" id="filtroClientes" class="form-control bg-transparent border-0 text-white"
-            placeholder="Buscar por nombre, correo o teléfono..." style="box-shadow: none;">
+          <input type="text" id="filtroClientes" class="form-control bg-transparent border-0"
+            style="box-shadow: none; color: var(--text-main, #212529);"
+            placeholder="Buscar clientes por nombre, email o teléfono...">
         </div>
       </div>
     </div>
   </div>
 
   <!-- Tabla de Clientes -->
-  <div class="glass-effect rounded-4 overflow-hidden shadow-lg">
+  <div class="glass-card rounded-4 overflow-hidden shadow-lg">
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0 text-white">
-        <thead class="bg-white bg-opacity-10 text-uppercase small fw-bold"
-          style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="text-uppercase small fw-bold"
+          style="border-bottom: 2px solid var(--border-color, #dee2e6); background: rgba(0,0,0,0.02);">
           <tr>
-            <th class="ps-4 py-3">Nombre</th>
-            <th class="py-3">Contacto</th>
-            <th class="py-3">Dirección</th>
-            <th class="text-end pe-4 py-3">Acciones</th>
+            <th class="ps-4 py-3" style="color: var(--text-main, #212529);">Nombre</th>
+            <th class="py-3" style="color: var(--text-main, #212529);">Contacto</th>
+            <th class="py-3" style="color: var(--text-main, #212529);">Dirección</th>
+            <th class="text-end pe-4 py-3" style="color: var(--text-main, #212529);">Acciones</th>
           </tr>
         </thead>
         <tbody id="tablaClientesBody">
           {% for cliente in clientes %}
-          <tr class="cliente-row" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <tr class="cliente-row" style="border-bottom: 1px solid var(--border-color, #dee2e6);">
             <td class="ps-4 py-3">
               <div class="d-flex align-items-center">
-                <div
-                  class="avatar-circle me-3 bg-primary bg-opacity-25 text-primary rounded-circle d-flex align-items-center justify-content-center"
-                  style="width: 45px; height: 45px; font-weight: bold; font-size: 1.2rem;">
+                <div class="avatar-circle me-3 bg-primary bg-opacity-25 text-primary fw-bold">
                   {{ cliente.nombre|first|upper }}
                 </div>
                 <div>
-                  <h6 class="mb-0 fw-bold text-white">{{ cliente.nombre }}</h6>
-                  <small class="text-white-50">ID: #{{ cliente.pk }}</small>
+                  <h6 class="mb-0 fw-bold" style="color: var(--text-main, #212529);">{{ cliente.nombre }}</h6>
+                  <small style="color: var(--text-muted, #6c757d);">ID: #{{ cliente.pk }}</small>
                 </div>
               </div>
             </td>
             <td class="py-3">
               <div class="d-flex flex-column gap-1">
                 {% if cliente.correo %}
-                <div class="d-flex align-items-center text-light">
-                  <i class="fas fa-envelope me-2 text-info opacity-75" style="width: 16px;"></i>
-                  <a href="mailto:{{ cliente.correo }}" class="text-decoration-none text-light hover-text-primary">{{
-                    cliente.correo }}</a>
+                <div class="d-flex align-items-center" style="color: var(--text-main, #212529);">
+                  <i class="fas fa-envelope me-2 text-info" style="width: 16px;"></i>
+                  <a href="mailto:{{ cliente.correo }}" class="text-decoration-none hover-text-primary"
+                    style="color: var(--text-main, #212529);">{{ cliente.correo }}</a>
                 </div>
                 {% endif %}
                 {% if cliente.telefono %}
-                <div class="d-flex align-items-center text-light">
-                  <i class="fas fa-phone me-2 text-success opacity-75" style="width: 16px;"></i>
-                  <a href="tel:{{ cliente.telefono }}" class="text-decoration-none text-light hover-text-primary">{{
-                    cliente.telefono }}</a>
+                <div class="d-flex align-items-center" style="color: var(--text-main, #212529);">
+                  <i class="fas fa-phone me-2 text-success" style="width: 16px;"></i>
+                  <a href="tel:{{ cliente.telefono }}" class="text-decoration-none hover-text-primary"
+                    style="color: var(--text-main, #212529);">{{ cliente.telefono }}</a>
                 </div>
                 {% endif %}
                 {% if not cliente.correo and not cliente.telefono %}
-                <span class="text-white-50 fst-italic">Sin datos de contacto</span>
+                <span class="fst-italic" style="color: var(--text-muted, #6c757d);">Sin datos de contacto</span>
                 {% endif %}
               </div>
             </td>
             <td class="py-3">
               {% if cliente.direccion %}
-              <div class="d-flex align-items-start text-light" style="max-width: 300px;">
-                <i class="fas fa-map-marker-alt me-2 text-danger opacity-75 mt-1" style="width: 16px;"></i>
+              <div class="d-flex align-items-start" style="max-width: 300px; color: var(--text-main, #212529);">
+                <i class="fas fa-map-marker-alt me-2 text-danger mt-1" style="width: 16px;"></i>
                 <span>{{ cliente.direccion }}</span>
               </div>
               {% else %}
-              <span class="text-white-50 fst-italic">No registrada</span>
+              <span class="fst-italic" style="color: var(--text-muted, #6c757d);">No registrada</span>
               {% endif %}
             </td>
             <td class="text-end pe-4 py-3">
               <div class="d-flex justify-content-end gap-2">
-                <a href="{% url 'clientes_update' cliente.pk %}" class="btn btn-sm btn-outline-light rounded-pill px-3"
-                  title="Editar">
+                <a href="{% url 'clientes_update' cliente.pk %}"
+                  class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Editar">
                   <i class="fas fa-pen me-1"></i> Editar
                 </a>
                 <a href="{% url 'clientes_delete' cliente.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3"
@@ -108,9 +107,9 @@
           <tr>
             <td colspan="4" class="text-center py-5">
               <div class="d-flex flex-column align-items-center opacity-50">
-                <i class="fas fa-users-slash fa-4x mb-3"></i>
-                <h5>No hay clientes registrados</h5>
-                <p class="mb-0">Comienza agregando uno nuevo</p>
+                <i class="fas fa-users-slash fa-4x mb-3" style="color: var(--text-muted, #6c757d);"></i>
+                <h5 style="color: var(--text-muted, #6c757d);">No hay clientes registrados</h5>
+                <p class="mb-0" style="color: var(--text-muted, #6c757d);">Comienza agregando uno nuevo</p>
               </div>
             </td>
           </tr>
@@ -123,26 +122,39 @@
 </div>
 
 <style>
-  /* Estilos específicos para esta página, complementando style_pro.css */
   .avatar-circle {
-    transition: transform 0.3s ease;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  .cliente-row {
+    transition: background-color 0.2s ease;
   }
 
   .cliente-row:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .cliente-row:hover .avatar-circle {
-    transform: scale(1.1);
+    background: var(--bg-surface-hover, rgba(0, 0, 0, 0.02));
   }
 
   .hover-text-primary:hover {
-    color: var(--primary-light) !important;
+    color: var(--primary, #0d6efd) !important;
   }
 
-  /* Placeholder color fix for glass input */
-  #filtroClientes::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+  /* Ensure text is readable in both light and dark modes */
+  body.light-mode .text-main,
+  body.light-mode h6,
+  body.light-mode th {
+    color: #212529 !important;
+  }
+
+  body.dark-mode .text-main,
+  body.dark-mode h6,
+  body.dark-mode th {
+    color: #e9ecef !important;
   }
 </style>
 

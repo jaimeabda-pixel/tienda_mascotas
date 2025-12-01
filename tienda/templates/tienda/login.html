@@ -1,116 +1,237 @@
 {% extends 'tienda/base.html' %}
 {% load static %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block container_class %}
+container-fluid min-vh-100 d-flex align-items-center justify-content-center py-5
+{% endblock %}
+
 {% block content %}
-{% load form_tags %}
+<div class="row justify-content-center w-100">
+    <div class="col-md-8 col-lg-6">
 
-<div class="login-wrapper">
-    <div class="login-card shadow-lg rounded-5 animate__animated animate__fadeIn">
-
-        <!-- Logo e info -->
-        <div class="text-center mb-4">
-            <img src="{% static 'img/logo_producto.webp' %}" alt="Logo" class="mb-3" style="width:80px; border-radius:15px;">
-            <h3 class="fw-bold text-white">Bienvenido</h3>
-            <p class="text-light opacity-75">Inicia sesión para continuar</p>
-        </div>
-
-        <!-- Errores -->
-        {% if form.errors %}
-        <div class="alert alert-danger py-2 text-center rounded-3">
-            <i class="fas fa-exclamation-triangle me-1"></i> Usuario o contraseña incorrectos.
-        </div>
-        {% endif %}
-
-        <!-- Formulario -->
-        <form method="post" novalidate>
-            {% csrf_token %}
-
-            <div class="mb-3 position-relative">
-                <span class="input-icon"><i class="fas fa-user"></i></span>
-                {{ form.username|add_class:"form-control rounded-4 ps-5 py-2" }}
+        <!-- USER SELECTION SCREEN -->
+        <div id="user-selection-screen" class="fade-in-up">
+            <div class="text-center mb-5">
+                <img src="{% static 'img/logo_producto.webp' %}" alt="Logo"
+                    style="width: 80px; height: 80px; object-fit: contain;" class="mb-3">
+                <h2 class="fw-bold">Selecciona tu cuenta</h2>
+                <p class="text-muted">Bienvenido de nuevo a TiendaMascotas</p>
             </div>
 
-            <div class="mb-4 position-relative">
-                <span class="input-icon"><i class="fas fa-lock"></i></span>
-                {{ form.password|add_class:"form-control rounded-4 ps-5 py-2" }}
+            <div class="row g-3 justify-content-center">
+                {% for vendedor in vendedores %}
+                <div class="col-6 col-md-4">
+                    <div class="card h-100 border-0 shadow-sm user-card"
+                        onclick="selectUser('{{ vendedor.username|escapejs }}', '{% if vendedor.foto_perfil %}{{ vendedor.foto_perfil.url|escapejs }}{% else %}default{% endif %}', '{% if vendedor.first_name %}{{ vendedor.first_name|escapejs }}{% else %}{{ vendedor.username|escapejs }}{% endif %}')">
+                        <div class="card-body text-center p-4">
+                            <div class="position-relative d-inline-block mb-3">
+                                {% if vendedor.foto_perfil %}
+                                <img src="{{ vendedor.foto_perfil.url }}" class="rounded-circle shadow-sm"
+                                    style="width: 80px; height: 80px; object-fit: cover;">
+                                {% else %}
+                                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center mx-auto shadow-sm"
+                                    style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+                                    {{ vendedor.username|first|upper }}
+                                </div>
+                                {% endif %}
+                                {% if vendedor.is_superuser %}
+                                <span
+                                    class="position-absolute bottom-0 end-0 bg-warning border border-white rounded-circle p-1"
+                                    title="Administrador">
+                                    <i class="fas fa-crown text-white" style="font-size: 0.7rem;"></i>
+                                </span>
+                                {% endif %}
+                            </div>
+                            <h6 class="fw-bold mb-1 text-truncate">
+                                {% if vendedor.first_name %}
+                                {{ vendedor.first_name|title }}
+                                {% else %}
+                                {{ vendedor.username|title }}
+                                {% endif %}
+                            </h6>
+                            <small class="text-muted">
+                                {% if vendedor.is_superuser %}
+                                Administrador
+                                {% else %}
+                                Vendedor
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Add Account / Manual Login -->
+                <div class="col-6 col-md-4">
+                    <div class="card h-100 border-0 shadow-sm user-card dashed-border" onclick="showManualLogin()">
+                        <div
+                            class="card-body text-center p-4 d-flex flex-column align-items-center justify-content-center">
+                            <div class="rounded-circle bg-light text-muted d-flex align-items-center justify-content-center mb-3"
+                                style="width: 80px; height: 80px;">
+                                <i class="fas fa-plus fa-2x"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0">Otra cuenta</h6>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <button type="submit" class="btn btn-gradient w-100 py-2 rounded-4 fw-semibold shadow-sm">
-                <i class="fas fa-sign-in-alt me-2"></i> Entrar
-            </button>
-        </form>
-
-        <div class="text-center mt-4">
-            <p class="text-light mb-0">¿No tienes cuenta?
-                <a href="{% url 'registrar_vendedor' %}" class="text-white fw-semibold text-decoration-underline">Regístrate aquí</a>
-            </p>
         </div>
+
+        <!-- LOGIN FORM SCREEN -->
+        <div id="login-form-screen" class="d-none fade-in-up">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div id="selected-user-avatar" class="mb-3">
+                            <!-- Avatar injected via JS -->
+                        </div>
+                        <h4 class="fw-bold" id="selected-user-name">Usuario</h4>
+                        <p class="text-muted">Ingresa tu contraseña para continuar</p>
+                    </div>
+
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" id="login-username">
+
+                        <!-- Password Input -->
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control rounded-3" id="password" name="password"
+                                placeholder="Contraseña" required>
+                            <label for="password">Contraseña</label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold">Iniciar
+                                Sesión</button>
+                            <button type="button" class="btn btn-light btn-lg rounded-3 text-muted"
+                                onclick="backToSelection()">
+                                <i class="fas fa-arrow-left me-2"></i> Cambiar cuenta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANUAL LOGIN SCREEN -->
+        <div id="manual-login-screen" class="d-none fade-in-up">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <img src="{% static 'img/logo_producto.webp' %}" alt="Logo"
+                            style="width: 60px; height: 60px; object-fit: contain;" class="mb-3">
+                        <h4 class="fw-bold">Iniciar Sesión</h4>
+                        <p class="text-muted">Ingresa tus credenciales</p>
+                    </div>
+
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control rounded-3" id="manual-username" name="username"
+                                placeholder="Usuario" required>
+                            <label for="manual-username">Usuario</label>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control rounded-3" id="manual-password" name="password"
+                                placeholder="Contraseña" required>
+                            <label for="manual-password">Contraseña</label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold">Entrar</button>
+                            <button type="button" class="btn btn-light btn-lg rounded-3 text-muted"
+                                onclick="backToSelection()">
+                                <i class="fas fa-arrow-left me-2"></i> Volver
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <style>
-/* Wrapper centrado con flex */
-.login-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 60px); /* Ajusta si navbar cambia */
-    padding: 1rem;
-}
+    .user-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+    }
 
-/* Tarjeta login */
-.login-card {
-    width: 380px;
-    max-width: 95%;
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
-    padding: 2rem;
-    border-radius: 15px;
-}
+    .user-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+        background: white;
+    }
 
-/* Iconos en inputs */
-.input-icon {
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    transform: translateY(-50%);
-    color: rgba(255,255,255,0.7);
-}
+    .dashed-border {
+        border: 2px dashed #dee2e6 !important;
+        background: transparent;
+    }
 
-/* Inputs */
-.form-control {
-    background-color: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-}
-.form-control::placeholder { color: rgba(255,255,255,0.7); }
-.form-control:focus {
-    background-color: rgba(255,255,255,0.25);
-    box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.2);
-    border-color: #fff;
-    color: white;
-}
+    .dashed-border:hover {
+        border-color: var(--primary-color) !important;
+        background: rgba(var(--primary-rgb), 0.05);
+    }
 
-/* Botón */
-.btn-gradient {
-    background: linear-gradient(90deg, #4e73df, #1cc88a);
-    border: none;
-    color: white;
-    transition: all 0.3s ease;
-}
-.btn-gradient:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-}
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease-out;
+    }
 
-/* Enlace registro */
-a.text-white:hover { text-shadow: 0 0 8px rgba(255,255,255,0.7); }
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
 
-/* Responsivo */
-@media (max-width: 420px) {
-    .login-card { width: 90%; padding: 2rem 1rem; }
-}
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
 
+<script>
+    function selectUser(username, avatarUrl, name) {
+        // Hide selection, show login form
+        document.getElementById('user-selection-screen').classList.add('d-none');
+        document.getElementById('login-form-screen').classList.remove('d-none');
+        document.getElementById('manual-login-screen').classList.add('d-none');
+
+        // Populate form
+        document.getElementById('login-username').value = username;
+        document.getElementById('selected-user-name').innerText = name;
+
+        // Set avatar
+        const avatarContainer = document.getElementById('selected-user-avatar');
+        if (avatarUrl === 'default') {
+            avatarContainer.innerHTML = `
+                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center mx-auto shadow-sm" style="width: 100px; height: 100px; font-size: 2.5rem; font-weight: bold;">
+                    ${name.charAt(0).toUpperCase()}
+                </div>`;
+        } else {
+            avatarContainer.innerHTML = `<img src="${avatarUrl}" class="rounded-circle shadow-lg" style="width: 100px; height: 100px; object-fit: cover;">`;
+        }
+
+        // Focus password
+        setTimeout(() => document.getElementById('password').focus(), 100);
+    }
+
+    function showManualLogin() {
+        document.getElementById('user-selection-screen').classList.add('d-none');
+        document.getElementById('login-form-screen').classList.add('d-none');
+        document.getElementById('manual-login-screen').classList.remove('d-none');
+        setTimeout(() => document.getElementById('manual-username').focus(), 100);
+    }
+
+    function backToSelection() {
+        document.getElementById('user-selection-screen').classList.remove('d-none');
+        document.getElementById('login-form-screen').classList.add('d-none');
+        document.getElementById('manual-login-screen').classList.add('d-none');
+    }
+</script>
 {% endblock %}
